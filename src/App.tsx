@@ -9,7 +9,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<DatePicker />} />
         <Route path="/games" element={<GameList />} />
-        <Route path="/games/:gameId" element={<GameReplay />} />
+        <Route path="/game/:gameId" element={<GameReplay />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

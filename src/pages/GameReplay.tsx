@@ -7,12 +7,12 @@ import StatsTeaser from '../components/StatsTeaser';
 import RevealScoreButton from '../components/RevealScoreButton';
 import FinalStats from '../components/FinalStats';
 import useSpoilerState from '../hooks/useSpoilerState';
-import games from '../data/games.json';
-import posts from '../data/posts.json';
+import { adaptGame, adaptPost, getGameById, getPostsForGame } from '../data/mockData';
 
 const DWELL_TIME_MS = 1400;
 const VELOCITY_THRESHOLD = 0.7;
 const END_BUFFER_PX = 240;
+const ORIENTATION_LOCK_MS = 1800;
 
 const GameReplay = () => {
   const { gameId } = useParams();
@@ -21,23 +21,28 @@ const GameReplay = () => {
   const lastScrollY = useRef<number | null>(null);
   const lastScrollTime = useRef<number | null>(null);
   const dwellTimer = useRef<number | null>(null);
+  const orientationLockUntil = useRef<number | null>(null);
 
-  const game = games.find((item) => item.id === gameId);
+  const game = getGameById(gameId);
 
   const timelinePosts = useMemo(() => {
-    return posts
-      .filter((post) => post.game_id === gameId)
+    return getPostsForGame(gameId)
+      .map((post) => adaptPost(post as Record<string, unknown>))
+      .filter((post) => post.tweetUrl)
       .sort((a, b) => {
-        if (a.has_video === b.has_video) {
-          return new Date(a.posted_at).getTime() - new Date(b.posted_at).getTime();
-        }
-        return a.has_video ? -1 : 1;
+        const aTime = postDateValue(a.postedAt);
+        const bTime = postDateValue(b.postedAt);
+        return aTime - bTime;
       });
   }, [gameId]);
 
   useEffect(() => {
     const handleScroll = () => {
       const now = Date.now();
+      if (orientationLockUntil.current && now < orientationLockUntil.current) {
+        setCanReveal(false);
+        return;
+      }
       const currentY = window.scrollY;
       const lastY = lastScrollY.current;
       const lastTime = lastScrollTime.current;
@@ -70,6 +75,7 @@ const GameReplay = () => {
 
     const handleOrientationChange = () => {
       setCanReveal(false);
+      orientationLockUntil.current = Date.now() + ORIENTATION_LOCK_MS;
       if (dwellTimer.current) {
         window.clearTimeout(dwellTimer.current);
         dwellTimer.current = null;
@@ -100,13 +106,8 @@ const GameReplay = () => {
     );
   }
 
-  const dateLabel = new Date(game.date).toLocaleString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const adaptedGame = adaptGame(game as Record<string, unknown>);
+  const dateLabel = formatGameDate(adaptedGame.date);
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 py-12">
@@ -114,37 +115,72 @@ const GameReplay = () => {
         Back to games
       </Link>
       <GameHeader
-        awayTeam={game.away_team}
-        homeTeam={game.home_team}
-        venue={game.venue}
+        awayTeam={adaptedGame.awayTeam ?? 'Away'}
+        homeTeam={adaptedGame.homeTeam ?? 'Home'}
+        venue={adaptedGame.venue ?? 'Venue TBD'}
         dateLabel={dateLabel}
       />
       <section className="space-y-10">
-        {timelinePosts.map((post) => (
-          <TweetEmbed
-            key={post.tweet_url}
-            tweetUrl={post.tweet_url}
-            hasVideo={post.has_video}
-            spoilersAllowed={spoilersAllowed}
-          />
-        ))}
+        {timelinePosts.length ? (
+          timelinePosts.map((post) => (
+            <TweetEmbed
+              key={post.tweetUrl}
+              tweetUrl={post.tweetUrl ?? ''}
+              hasVideo={post.hasVideo ?? false}
+              spoilersAllowed={spoilersAllowed}
+            />
+          ))
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/50 p-6 text-slate-400">
+            No timeline posts yet for this game.
+          </div>
+        )}
       </section>
       <TimelineDivider />
       <section className="space-y-6">
         <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
           Final stats are hidden until you reveal the score
         </p>
-        {spoilersAllowed ? (
-          <FinalStats homeTeam={game.home_team} awayTeam={game.away_team} attendance={game.attendance} />
-        ) : (
-          <StatsTeaser />
-        )}
+        <StatsTeaser />
       </section>
-      {!spoilersAllowed ? (
-        <RevealScoreButton enabled={canReveal} onReveal={revealSpoilers} />
+      {!spoilersAllowed ? <RevealScoreButton enabled={canReveal} onReveal={revealSpoilers} /> : null}
+      {spoilersAllowed ? (
+        <FinalStats
+          homeTeam={adaptedGame.homeTeam ?? 'Home'}
+          awayTeam={adaptedGame.awayTeam ?? 'Away'}
+          attendance={adaptedGame.attendance ?? 0}
+        />
       ) : null}
     </main>
   );
 };
 
 export default GameReplay;
+
+const formatGameDate = (value?: string) => {
+  if (!value) {
+    return 'Date TBD';
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toLocaleString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
+const postDateValue = (value?: string) => {
+  if (!value) {
+    return 0;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return 0;
+  }
+  return parsed.getTime();
+};

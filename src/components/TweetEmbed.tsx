@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/tweetMask.css';
 
 interface TweetEmbedProps {
@@ -9,6 +9,27 @@ interface TweetEmbedProps {
 
 const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) => {
   const [captionRevealed, setCaptionRevealed] = useState(false);
+  const revealTimer = useRef<number | null>(null);
+
+  const handleRevealIntent = () => {
+    if (spoilersAllowed || revealTimer.current) {
+      return;
+    }
+    revealTimer.current = window.setTimeout(() => {
+      setCaptionRevealed(true);
+      revealTimer.current = null;
+    }, 600);
+  };
+
+  const handleRevealCancel = () => {
+    if (revealTimer.current) {
+      window.clearTimeout(revealTimer.current);
+      revealTimer.current = null;
+    }
+    if (!spoilersAllowed) {
+      setCaptionRevealed(false);
+    }
+  };
 
   const maskVisible = useMemo(() => !spoilersAllowed && !captionRevealed, [spoilersAllowed, captionRevealed]);
 
@@ -32,21 +53,35 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
     }
   }, [tweetUrl]);
 
+  useEffect(() => {
+    return () => {
+      if (revealTimer.current) {
+        window.clearTimeout(revealTimer.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
         <span>{hasVideo ? 'Video Highlight' : 'Moment'}</span>
         <span>Official Team Post</span>
       </div>
-      <div className="tweet-shell">
+      <div
+        className="tweet-shell"
+        onMouseEnter={handleRevealIntent}
+        onMouseLeave={handleRevealCancel}
+        onFocus={handleRevealIntent}
+        onBlur={handleRevealCancel}
+        onTouchStart={handleRevealIntent}
+        onTouchEnd={handleRevealCancel}
+      >
         <blockquote className="twitter-tweet">
           <a href={tweetUrl}></a>
         </blockquote>
         {maskVisible ? (
           <div className="caption-mask">
-            <button type="button" onClick={() => setCaptionRevealed(true)}>
-              Tap to reveal caption
-            </button>
+            <span>Pause to preview caption</span>
           </div>
         ) : null}
       </div>
