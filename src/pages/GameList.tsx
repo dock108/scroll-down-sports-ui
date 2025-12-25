@@ -1,5 +1,6 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { adaptGame, getGamesByDateRange } from '../data/mockData';
+import { GameSummary, MockGameAdapter } from '../adapters/GameAdapter';
 
 const getDateLabel = (value?: string) => {
   if (!value) {
@@ -21,9 +22,36 @@ const GameList = () => {
   const query = new URLSearchParams(location.search);
   const start = query.get('start');
   const end = query.get('end');
-  const games = getGamesByDateRange(start, end)
-    .map((game) => ({ raw: game, adapted: adaptGame(game as Record<string, unknown>) }))
-    .filter(({ adapted }) => adapted.id);
+  const adapter = useMemo(() => new MockGameAdapter(), []);
+  const [games, setGames] = useState<GameSummary[]>([]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadGames = async () => {
+      const startDate = parseQueryDate(start);
+      const endDate = parseQueryDate(end);
+      const results = await adapter.getGamesByDateRange(
+        startDate ?? new Date('invalid'),
+        endDate ?? new Date('invalid'),
+      );
+
+      if (isActive) {
+        setGames(results.filter((game) => game.id));
+      }
+    };
+
+    loadGames().catch((error) => {
+      console.warn('Failed to load games.', error);
+      if (isActive) {
+        setGames([]);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [adapter, end, start]);
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-12">
@@ -40,22 +68,22 @@ const GameList = () => {
       </div>
       <div className="mt-8 grid gap-4">
         {games.length ? (
-          games.map(({ raw, adapted }) => (
+          games.map((game) => (
             <Link
-              key={adapted.id}
-              to={`/game/${adapted.id}`}
+              key={game.id}
+              to={`/game/${game.id}`}
               className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition hover:border-slate-600"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
-                    {getDateLabel(adapted.date ?? (raw as { date?: string }).date)}
+                    {getDateLabel(game.date)}
                   </p>
                   <h2 className="mt-2 text-xl font-semibold">
-                    {adapted.awayTeam ?? 'Away'} at {adapted.homeTeam ?? 'Home'}
+                    {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
                   </h2>
                 </div>
-                <div className="text-sm text-slate-400">{adapted.venue ?? 'Venue TBD'}</div>
+                <div className="text-sm text-slate-400">{game.venue ?? 'Venue TBD'}</div>
               </div>
             </Link>
           ))
@@ -70,3 +98,14 @@ const GameList = () => {
 };
 
 export default GameList;
+
+const parseQueryDate = (value?: string | null) => {
+  if (!value) {
+    return null;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed;
+};

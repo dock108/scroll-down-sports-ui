@@ -7,7 +7,8 @@ import StatsTeaser from '../components/StatsTeaser';
 import RevealScoreButton from '../components/RevealScoreButton';
 import FinalStats from '../components/FinalStats';
 import useSpoilerState from '../hooks/useSpoilerState';
-import { adaptGame, adaptPost, getGameById, getPostsForGame } from '../data/mockData';
+import { GameDetails, MockGameAdapter } from '../adapters/GameAdapter';
+import { MockPostAdapter, TimelinePost } from '../adapters/PostAdapter';
 
 const DWELL_TIME_MS = 1400;
 const VELOCITY_THRESHOLD = 0.7;
@@ -18,23 +19,51 @@ const GameReplay = () => {
   const { gameId } = useParams();
   const { spoilersAllowed, revealSpoilers } = useSpoilerState();
   const [canReveal, setCanReveal] = useState(false);
+  const [game, setGame] = useState<GameDetails | null | undefined>(undefined);
+  const [timelinePosts, setTimelinePosts] = useState<TimelinePost[]>([]);
   const lastScrollY = useRef<number | null>(null);
   const lastScrollTime = useRef<number | null>(null);
   const dwellTimer = useRef<number | null>(null);
   const orientationLockUntil = useRef<number | null>(null);
 
-  const game = getGameById(gameId);
+  const gameAdapter = useMemo(() => new MockGameAdapter(), []);
+  const postAdapter = useMemo(() => new MockPostAdapter(), []);
 
-  const timelinePosts = useMemo(() => {
-    return getPostsForGame(gameId)
-      .map((post) => adaptPost(post as Record<string, unknown>))
-      .filter((post) => post.tweetUrl)
-      .sort((a, b) => {
-        const aTime = postDateValue(a.postedAt);
-        const bTime = postDateValue(b.postedAt);
-        return aTime - bTime;
-      });
-  }, [gameId]);
+  useEffect(() => {
+    let isActive = true;
+
+    const loadGameData = async () => {
+      if (!gameId) {
+        if (isActive) {
+          setGame(null);
+          setTimelinePosts([]);
+        }
+        return;
+      }
+
+      const [gameResult, postResult] = await Promise.all([
+        gameAdapter.getGameById(gameId),
+        postAdapter.getPostsForGame(gameId),
+      ]);
+
+      if (isActive) {
+        setGame(gameResult);
+        setTimelinePosts(postResult);
+      }
+    };
+
+    loadGameData().catch((error) => {
+      console.warn('Failed to load game data.', error);
+      if (isActive) {
+        setGame(null);
+        setTimelinePosts([]);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [gameAdapter, gameId, postAdapter]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,6 +124,10 @@ const GameReplay = () => {
     };
   }, []);
 
+  if (game === undefined) {
+    return null;
+  }
+
   if (!game) {
     return (
       <main className="mx-auto min-h-screen max-w-3xl px-6 py-16">
@@ -106,8 +139,7 @@ const GameReplay = () => {
     );
   }
 
-  const adaptedGame = adaptGame(game as Record<string, unknown>);
-  const dateLabel = formatGameDate(adaptedGame.date);
+  const dateLabel = formatGameDate(game.date);
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 py-12">
@@ -115,24 +147,24 @@ const GameReplay = () => {
         Back to games
       </Link>
       <GameHeader
-        awayTeam={adaptedGame.awayTeam ?? 'Away'}
-        homeTeam={adaptedGame.homeTeam ?? 'Home'}
-        venue={adaptedGame.venue ?? 'Venue TBD'}
+        awayTeam={game.awayTeam || 'Away'}
+        homeTeam={game.homeTeam || 'Home'}
+        venue={game.venue ?? 'Venue TBD'}
         dateLabel={dateLabel}
       />
       <section className="space-y-10">
         {timelinePosts.length ? (
           timelinePosts.map((post) => (
             <TweetEmbed
-              key={post.tweetUrl}
-              tweetUrl={post.tweetUrl ?? ''}
+              key={post.id}
+              tweetUrl={post.tweetUrl}
               hasVideo={post.hasVideo ?? false}
               spoilersAllowed={spoilersAllowed}
             />
           ))
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/50 p-6 text-slate-400">
-            No timeline posts yet for this game.
+            No highlights available.
           </div>
         )}
       </section>
@@ -146,9 +178,9 @@ const GameReplay = () => {
       {!spoilersAllowed ? <RevealScoreButton enabled={canReveal} onReveal={revealSpoilers} /> : null}
       {spoilersAllowed ? (
         <FinalStats
-          homeTeam={adaptedGame.homeTeam ?? 'Home'}
-          awayTeam={adaptedGame.awayTeam ?? 'Away'}
-          attendance={adaptedGame.attendance ?? 0}
+          homeTeam={game.homeTeam || 'Home'}
+          awayTeam={game.awayTeam || 'Away'}
+          attendance={game.attendance ?? 0}
         />
       ) : null}
     </main>
@@ -172,15 +204,4 @@ const formatGameDate = (value?: string) => {
     hour: 'numeric',
     minute: '2-digit',
   });
-};
-
-const postDateValue = (value?: string) => {
-  if (!value) {
-    return 0;
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return 0;
-  }
-  return parsed.getTime();
 };
