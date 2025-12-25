@@ -42,17 +42,17 @@ const FinalStats = ({ homeTeam, awayTeam, attendance, revealed }: FinalStatsProp
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-emerald-500/10 transition-all duration-500 ${
+      className={`overflow-hidden rounded-2xl bg-white transition-all duration-500 ${
         revealed
-          ? 'max-h-[1200px] translate-y-0 border border-emerald-500/30 p-6 opacity-100'
+          ? 'max-h-[1200px] translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
           : 'max-h-0 translate-y-4 border border-transparent p-0 opacity-0'
       }`}
       aria-hidden={!revealed}
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Final Score + Stats</p>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-emerald-200/80">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Final Score + Stats</p>
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-400">
             <span>Sort</span>
             <button
               type="button"
@@ -60,8 +60,8 @@ const FinalStats = ({ homeTeam, awayTeam, attendance, revealed }: FinalStatsProp
               aria-pressed={sortOrder === 'default'}
               className={`rounded-full border px-3 py-1 ${
                 sortOrder === 'default'
-                  ? 'border-emerald-200 text-emerald-100'
-                  : 'border-emerald-400/40 text-emerald-200/70'
+                  ? 'border-gray-400 text-gray-900'
+                  : 'border-gray-200 text-gray-500'
               }`}
             >
               Default
@@ -72,8 +72,8 @@ const FinalStats = ({ homeTeam, awayTeam, attendance, revealed }: FinalStatsProp
               aria-pressed={sortOrder === 'high-low'}
               className={`rounded-full border px-3 py-1 ${
                 sortOrder === 'high-low'
-                  ? 'border-emerald-200 text-emerald-100'
-                  : 'border-emerald-400/40 text-emerald-200/70'
+                  ? 'border-gray-400 text-gray-900'
+                  : 'border-gray-200 text-gray-500'
               }`}
             >
               High-Low
@@ -84,31 +84,31 @@ const FinalStats = ({ homeTeam, awayTeam, attendance, revealed }: FinalStatsProp
               aria-pressed={sortOrder === 'alpha'}
               className={`rounded-full border px-3 py-1 ${
                 sortOrder === 'alpha'
-                  ? 'border-emerald-200 text-emerald-100'
-                  : 'border-emerald-400/40 text-emerald-200/70'
+                  ? 'border-gray-400 text-gray-900'
+                  : 'border-gray-200 text-gray-500'
               }`}
             >
               A-Z
             </button>
           </div>
         </div>
-        <div className="rounded-2xl border border-emerald-400/30 bg-slate-950/40 px-6 py-5">
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Final score</p>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Final score</p>
           <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
-            <div className="text-3xl font-semibold text-emerald-100">{awayTeam}</div>
-            <div className="text-5xl font-semibold text-emerald-200">108</div>
+            <div className="text-3xl font-semibold text-gray-800">{awayTeam}</div>
+            <div className="text-5xl font-semibold text-gray-900">108</div>
           </div>
           <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
-            <div className="text-3xl font-semibold text-emerald-100">{homeTeam}</div>
-            <div className="text-5xl font-semibold text-emerald-200">112</div>
+            <div className="text-3xl font-semibold text-gray-800">{homeTeam}</div>
+            <div className="text-5xl font-semibold text-gray-900">112</div>
           </div>
         </div>
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {sortedStats.map((stat) => (
-          <div key={stat.label} className="rounded-xl bg-slate-950/60 p-4 text-center">
-            <div className="text-3xl font-semibold text-emerald-200">{stat.value}</div>
-            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-100/70">
+          <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+            <div className="text-3xl font-semibold text-gray-900">{stat.value}</div>
+            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">
               {stat.label}
             </div>
           </div>

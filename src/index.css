@@ -3,20 +3,30 @@
 @tailwind utilities;
 
 :root {
-  font-family: "Inter", system-ui, sans-serif;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --text: #1c1c1c;
+  --muted: #5a5a5a;
+  --border: #e5e5e5;
+  --accent: #2f6fed;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .tweet-shell {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: #0f172a;
-  min-height: clamp(280px, 70vw, 420px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem;
+  min-height: clamp(240px, 60vw, 420px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
 .tweet-shell blockquote {

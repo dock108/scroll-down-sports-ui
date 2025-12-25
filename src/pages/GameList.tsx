@@ -64,32 +64,31 @@ const GameList = () => {
   }, [adapter, end, start, startDate, endDate]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-[700px] px-6 py-12">
+    <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
       <div className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.4em] text-slate-500">Games</p>
+        <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Games</p>
         <h1 className="text-3xl font-semibold">Choose a game to replay</h1>
         {start || end ? (
-          <p className="text-slate-400">
+          <p className="text-gray-600">
             Showing games {start ? `from ${start}` : ''} {end ? `to ${end}` : ''}
           </p>
         ) : (
-          <p className="text-slate-500">Select a date range to load mock games.</p>
+          <p className="text-gray-600">Select a date range to load mock games.</p>
         )}
         {hasInvalidParams ? (
-          <p className="text-sm text-amber-200">Invalid date range supplied. Showing all available games.</p>
+          <p className="text-sm text-amber-700">
+            Invalid date range supplied. Showing all available games.
+          </p>
         ) : null}
       </div>
-      <div className="mt-8 grid gap-4">
+      <div className="mt-8">
         {isLoading ? (
           Array.from({ length: 3 }, (_, index) => (
-            <div
-              key={`skeleton-${index}`}
-              className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5"
-            >
+            <div key={`skeleton-${index}`} className="py-4 border-b border-gray-200">
               <div className="space-y-3 animate-pulse">
-                <div className="h-3 w-32 rounded-full bg-slate-800"></div>
-                <div className="h-6 w-2/3 rounded-full bg-slate-800"></div>
-                <div className="h-4 w-1/3 rounded-full bg-slate-800"></div>
+                <div className="h-3 w-32 rounded-full bg-gray-200"></div>
+                <div className="h-6 w-2/3 rounded-full bg-gray-200"></div>
+                <div className="h-4 w-1/3 rounded-full bg-gray-200"></div>
               </div>
             </div>
           ))
@@ -98,23 +97,18 @@ const GameList = () => {
             <Link
               key={game.id}
               to={`/game/${game.id}`}
-              className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition hover:border-slate-600"
+              className="block w-full text-left py-4 border-b border-gray-200 transition hover:bg-gray-50"
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
-                    {getDateLabel(game.date)}
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold">
-                    {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
-                  </h2>
-                </div>
-                <div className="text-sm text-slate-400">{game.venue ?? 'Venue TBD'}</div>
+              <div className="font-medium">
+                {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
+              </div>
+              <div className="text-sm text-gray-600">
+                {getDateLabel(game.date)} — {game.venue ?? 'Venue TBD'}
               </div>
             </Link>
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-6 text-slate-400">
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-gray-500">
             No finished games in this range.
           </div>
         )}

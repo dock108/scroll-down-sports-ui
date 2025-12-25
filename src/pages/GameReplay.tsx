@@ -137,11 +137,11 @@ const GameReplay = () => {
 
   if (isLoading) {
     return (
-      <main className="mx-auto min-h-screen max-w-[700px] px-6 py-12">
+      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
         <div className="space-y-4 animate-pulse">
-          <div className="h-4 w-32 rounded-full bg-slate-800"></div>
-          <div className="h-8 w-3/4 rounded-full bg-slate-800"></div>
-          <div className="h-5 w-2/3 rounded-full bg-slate-800"></div>
+          <div className="h-4 w-32 rounded-full bg-gray-200"></div>
+          <div className="h-8 w-3/4 rounded-full bg-gray-200"></div>
+          <div className="h-5 w-2/3 rounded-full bg-gray-200"></div>
         </div>
         <div className="mt-10 space-y-6">
           {Array.from({ length: 3 }, (_, index) => (
@@ -160,9 +160,9 @@ const GameReplay = () => {
 
   if (!game) {
     return (
-      <main className="mx-auto min-h-screen max-w-[700px] px-6 py-16">
-        <p className="text-slate-300">Game not found.</p>
-        <Link className="mt-4 inline-flex text-emerald-300" to="/games">
+      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+        <p className="text-gray-600">Game not found.</p>
+        <Link className="mt-4 inline-flex text-blue-600 underline" to="/games">
           Back to games
         </Link>
       </main>
@@ -173,8 +173,8 @@ const GameReplay = () => {
   const showRevealButton = revealUnlocked && !spoilersAllowed;
 
   return (
-    <main className="mx-auto min-h-screen max-w-[700px] space-y-12 px-6 pb-24 pt-12">
-      <Link className="text-xs uppercase tracking-[0.3em] text-slate-500" to="/games">
+    <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 pb-28 pt-10">
+      <Link className="text-xs uppercase tracking-[0.3em] text-gray-500" to="/games">
         Back to games
       </Link>
       <GameHeader
@@ -194,16 +194,17 @@ const GameReplay = () => {
             />
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/50 p-6 text-slate-400">
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-gray-500">
             This game has no highlight posts available yet.
           </div>
         )}
       </section>
       <TimelineDivider />
       <section className="space-y-6">
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
-          Final stats are hidden until you reveal the score
-        </p>
+        <div className="space-y-1">
+          <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
+          <p className="text-sm text-gray-600">Reveal when you’re ready.</p>
+        </div>
         <StatsTeaser />
       </section>
       {showRevealButton ? (

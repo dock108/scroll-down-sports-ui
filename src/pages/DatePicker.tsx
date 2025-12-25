@@ -39,44 +39,44 @@ const DatePicker = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-[700px] flex-col justify-center px-6 py-16">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-10">
       <div className="space-y-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-slate-500">Scroll Down Sports</p>
+        <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
         <h1 className="text-4xl font-semibold">Pick your spoiler-safe date range</h1>
-        <p className="text-slate-400">
+        <p className="text-gray-600">
           Browse finished games without scores. Highlights scroll like an article. Reveal the final score only when you say so.
         </p>
         {parsedParams.hasInvalid ? (
-          <p className="rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-amber-200">
+          <p className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-amber-700">
             Invalid dates detected — defaults loaded.
           </p>
         ) : null}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-          <label className="text-xs uppercase tracking-[0.3em] text-slate-500">Date range</label>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <label className="text-xs uppercase tracking-[0.3em] text-gray-500">Date range</label>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.3em] text-slate-500">Start date</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">Start date</span>
               <input
                 type="date"
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.3em] text-slate-500">End date</span>
+              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">End date</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
           </div>
           <button
             type="button"
             onClick={handleSubmit}
-            className="mt-5 inline-flex items-center rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-950"
+            className="mt-5 inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
           >
             Load games
           </button>

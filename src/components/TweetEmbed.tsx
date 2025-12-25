@@ -193,14 +193,14 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
   }, [embedStatus]);
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-500">
+    <div className="space-y-3 mb-6">
+      <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-gray-400">
         <span>{hasVideo ? 'Video Highlight' : 'Moment'}</span>
         <span>Official Team Post</span>
       </div>
       <div
         ref={containerRef}
-        className="tweet-shell focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+        className="tweet-shell focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
         onFocus={handleRevealIntent}
         onBlur={clearRevealTimer}
         onClick={handleRevealIntent}
@@ -218,10 +218,12 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
         ) : null}
         {embedStatus === 'failed' ? (
           <div className="tweet-fallback">
-            <p>Highlight unavailable — tap to open on X</p>
-            <a href={tweetUrl} target="_blank" rel="noreferrer">
-              Open tweet
-            </a>
+            <p>
+              Highlight unavailable —{' '}
+              <a href={tweetUrl} target="_blank" rel="noreferrer">
+                open on X
+              </a>
+            </p>
           </div>
         ) : null}
         {maskVisible ? (

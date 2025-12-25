@@ -5,7 +5,7 @@ import GameReplay from './pages/GameReplay';
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<DatePicker />} />
         <Route path="/games" element={<GameList />} />
