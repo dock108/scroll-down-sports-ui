@@ -9,8 +9,8 @@ import FinalStats from '../components/FinalStats';
 import DataError from '../components/DataError';
 import useSpoilerState from '../hooks/useSpoilerState';
 import { GameDetails } from '../adapters/GameAdapter';
-import { MockPostAdapter, TimelinePost } from '../adapters/PostAdapter';
-import { getGameAdapter, ApiConnectionError } from '../adapters';
+import { TimelinePost } from '../adapters/PostAdapter';
+import { getGameAdapter, getSocialPostAdapter, ApiConnectionError } from '../adapters';
 import { logUiEvent } from '../utils/uiTelemetry';
 
 const DWELL_TIME_MS = 1400;
@@ -50,7 +50,7 @@ const GameReplay = () => {
   const orientationLockUntil = useRef<number | null>(null);
 
   const gameAdapter = useMemo(() => getGameAdapter(), []);
-  const postAdapter = useMemo(() => new MockPostAdapter(), []);
+  const postAdapter = useMemo(() => getSocialPostAdapter(), []);
 
   useEffect(() => {
     let isActive = true;

@@ -1,6 +1,6 @@
 # Data models
 
-The app relies on mock JSON data stored under `src/data`. Adapters normalize the data so the UI can tolerate different field names.
+The app uses adapters to normalize data from multiple sources (local JSON for development, Postgres API for production). This allows the UI to tolerate different field names and data shapes.
 
 ## Games (`src/data/games.json`)
 
@@ -45,3 +45,36 @@ Optional fields:
 | `hasVideo` | `has_video`, `hasVideo`, `video` | Used to adjust embed treatment. |
 
 Posts are filtered by `gameId` and sorted by `postedAt` ascending before rendering.
+
+## Team social accounts (`src/data/team-social-accounts.json`)
+
+Maps all 30 NBA teams to their official Twitter/X handles.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `team_id` | String | Team abbreviation (e.g., "GSW", "LAL") |
+| `team_name` | String | Full team name |
+| `platform` | String | Always "twitter" for now |
+| `handle` | String | Twitter handle without @ prefix |
+| `profile_url` | String | Full profile URL |
+
+Accessed via `MockTeamSocialAdapter` or `getTeamSocialAdapter()`.
+
+## Game social posts (Postgres: `game_social_posts`)
+
+Links tweets to games. Minimal data—X hosts all media.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | UUID | Primary key |
+| `game_id` | FK | References games table |
+| `team_id` | String | Team abbreviation |
+| `tweet_url` | String | Full Twitter URL |
+| `posted_at` | Timestamp | When the tweet was posted |
+| `has_video` | Boolean | Optional flag for video content |
+
+**Not stored:** Tweet text, media files, engagement metrics.
+
+Accessed via `SocialPostApiAdapter` or `getSocialPostAdapter()`.
+
+See [X Integration](./x-integration.md) for full details on the Twitter embedding strategy.
