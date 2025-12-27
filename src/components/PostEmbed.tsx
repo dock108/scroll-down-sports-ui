@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { logUiEvent } from '../utils/uiTelemetry';
 import '../styles/tweetMask.css';
 
-interface TweetEmbedProps {
-  tweetUrl: string;
+interface PostEmbedProps {
+  postUrl: string;
   hasVideo: boolean;
   spoilersAllowed: boolean;
 }
@@ -39,7 +39,7 @@ const loadTwitterScript = () => {
   return twitterScriptPromise;
 };
 
-const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) => {
+const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
   const [captionRevealed, setCaptionRevealed] = useState(false);
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [maskHeight, setMaskHeight] = useState(90);
@@ -108,7 +108,7 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
         embedTimeout.current = null;
       }
     };
-  }, [tweetUrl]);
+  }, [postUrl]);
 
   useEffect(() => {
     return () => {
@@ -207,7 +207,7 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
         tabIndex={0}
       >
         <blockquote className="twitter-tweet">
-          <a href={tweetUrl}></a>
+          <a href={postUrl}></a>
         </blockquote>
         {embedStatus === 'loading' ? (
           <div className="tweet-skeleton" aria-hidden="true">
@@ -220,7 +220,7 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
           <div className="tweet-fallback">
             <p>
               Highlight unavailable —{' '}
-              <a href={tweetUrl} target="_blank" rel="noreferrer">
+              <a href={postUrl} target="_blank" rel="noreferrer">
                 open on X
               </a>
             </p>
@@ -236,4 +236,4 @@ const TweetEmbed = ({ tweetUrl, hasVideo, spoilersAllowed }: TweetEmbedProps) =>
   );
 };
 
-export default TweetEmbed;
+export default PostEmbed;

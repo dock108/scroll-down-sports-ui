@@ -11,19 +11,18 @@ export interface GameSocialPost {
   id: string;
   gameId: string;
   teamId: string;
-  tweetUrl: string;
+  postUrl: string;
   postedAt: string;
   hasVideo?: boolean;
 }
 
 export interface SocialPostAdapter {
   getPostsForGame(gameId: string): Promise<TimelinePost[]>;
-  getPostsForTeam(teamId: string, startDate?: Date, endDate?: Date): Promise<TimelinePost[]>;
 }
 
 /**
  * API adapter for social posts stored in Postgres
- * 
+ *
  * API endpoints:
  * - GET /api/social/posts/game/{gameId} - Get posts for a specific game
  * - GET /api/social/posts?team_id={teamId}&start_date={}&end_date={} - Filter posts
@@ -50,44 +49,6 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
     }
   }
 
-  async getPostsForTeam(
-    teamId: string,
-    startDate?: Date,
-    endDate?: Date
-  ): Promise<TimelinePost[]> {
-    if (!teamId) {
-      console.warn('SocialPostApiAdapter: team id missing.');
-      return [];
-    }
-
-    try {
-      const params = new URLSearchParams({ team_id: teamId });
-      
-      if (startDate && !isNaN(startDate.getTime())) {
-        params.append('start_date', startDate.toISOString());
-      }
-      if (endDate && !isNaN(endDate.getTime())) {
-        params.append('end_date', endDate.toISOString());
-      }
-
-      const data = await this.fetchJson(`${API_BASE}/api/social/posts?${params}`);
-      
-      return (data.posts || [])
-        .map(this.mapPost)
-        .sort((a: TimelinePost, b: TimelinePost) => {
-          const aTime = new Date(a.postedAt).getTime() || 0;
-          const bTime = new Date(b.postedAt).getTime() || 0;
-          return aTime - bTime;
-        });
-    } catch (error) {
-      if (error instanceof ApiConnectionError) {
-        throw error;
-      }
-      console.warn('SocialPostApiAdapter: failed to load team posts.', error);
-      return [];
-    }
-  }
-
   private async fetchJson(url: string): Promise<any> {
     let response: Response;
 
@@ -110,10 +71,10 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
 
   private mapPost(post: any): TimelinePost {
     return {
-      id: String(post.id || post.tweet_url || ''),
+      id: String(post.id || post.post_url || post.tweet_url || ''),
       gameId: String(post.game_id || ''),
       team: String(post.team_id || post.team || ''),
-      tweetUrl: String(post.tweet_url || ''),
+      postUrl: String(post.post_url || post.tweet_url || ''),
       postedAt: String(post.posted_at || ''),
       hasVideo: Boolean(post.has_video),
     };

@@ -46,20 +46,6 @@ Optional fields:
 
 Posts are filtered by `gameId` and sorted by `postedAt` ascending before rendering.
 
-## Team social accounts (`src/data/team-social-accounts.json`)
-
-Maps all 30 NBA teams to their official Twitter/X handles.
-
-| Field | Type | Notes |
-| --- | --- | --- |
-| `team_id` | String | Team abbreviation (e.g., "GSW", "LAL") |
-| `team_name` | String | Full team name |
-| `platform` | String | Always "twitter" for now |
-| `handle` | String | Twitter handle without @ prefix |
-| `profile_url` | String | Full profile URL |
-
-Accessed via `MockTeamSocialAdapter` or `getTeamSocialAdapter()`.
-
 ## Game social posts (Postgres: `game_social_posts`)
 
 Links tweets to games. Minimal data—X hosts all media.
@@ -69,8 +55,8 @@ Links tweets to games. Minimal data—X hosts all media.
 | `id` | UUID | Primary key |
 | `game_id` | FK | References games table |
 | `team_id` | String | Team abbreviation |
-| `tweet_url` | String | Full Twitter URL |
-| `posted_at` | Timestamp | When the tweet was posted |
+| `post_url` | String | Full X post URL |
+| `posted_at` | Timestamp | When the post was made |
 | `has_video` | Boolean | Optional flag for video content |
 
 **Not stored:** Tweet text, media files, engagement metrics.

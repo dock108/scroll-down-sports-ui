@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import GameHeader from '../components/GameHeader';
-import TweetEmbed from '../components/TweetEmbed';
+import PostEmbed from '../components/PostEmbed';
 import TimelineDivider from '../components/TimelineDivider';
 import StatsTeaser from '../components/StatsTeaser';
 import RevealScoreButton from '../components/RevealScoreButton';
@@ -225,9 +225,9 @@ const GameReplay = () => {
       <section className="space-y-10">
         {timelinePosts.length ? (
           timelinePosts.map((post) => (
-            <TweetEmbed
+            <PostEmbed
               key={post.id}
-              tweetUrl={post.tweetUrl}
+              postUrl={post.postUrl}
               hasVideo={post.hasVideo ?? false}
               spoilersAllowed={spoilersAllowed}
             />

@@ -1,20 +1,20 @@
-# X (Twitter) Integration
+# X Integration
 
-This document describes how Scroll Down Sports integrates official team Twitter accounts to build game timelines.
+This document describes how Scroll Down Sports renders official team X posts as game highlights. The backend owns data collection; the frontend only embeds posts and applies caption masking.
 
 ## Architecture Overview
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   Postgres DB   │────▶│  Backend API    │────▶│   Frontend UI   │
-│  (game_social_  │     │ /api/social/*   │     │  TweetEmbed.tsx │
+│  (game_social_  │     │ /api/social/*   │     │  PostEmbed.tsx  │
 │    posts)       │     │                 │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
         ▲
-        │ (scrape/manual entry)
+        │ (collection handled in backend)
         │
 ┌─────────────────┐
-│  Team Twitter   │
+│  Team X         │
 │   Profiles      │
 │  (30 NBA teams) │
 └─────────────────┘
@@ -29,51 +29,11 @@ Table: `game_social_posts`
 | id         | UUID      | Primary key                              |
 | game_id    | FK        | References games table                   |
 | team_id    | VARCHAR   | Team abbreviation (e.g., "GSW")          |
-| tweet_url  | TEXT      | Full Twitter URL                         |
-| posted_at  | TIMESTAMP | When the tweet was posted                |
+| post_url   | TEXT      | Full X URL                               |
+| posted_at  | TIMESTAMP | When the post was made                   |
 | has_video  | BOOLEAN   | Optional flag for video content          |
 
-**We do NOT store:**
-- Tweet text/captions
-- Media URLs or files
-- Engagement metrics (likes, RTs)
-- User IDs or OAuth tokens
-
-X hosts everything. We just embed.
-
-## Team Social Accounts
-
-All 30 NBA teams are mapped in `src/data/team-social-accounts.json`:
-
-```json
-{
-  "team_id": "GSW",
-  "team_name": "Golden State Warriors",
-  "platform": "twitter",
-  "handle": "warriors",
-  "profile_url": "https://twitter.com/warriors"
-}
-```
-
-### Team Handle Reference
-
-| Team | Handle           | Team | Handle           |
-| ---- | ---------------- | ---- | ---------------- |
-| ATL  | @ATLHawks        | MIL  | @Bucks           |
-| BOS  | @celtics         | MIN  | @Timberwolves    |
-| BKN  | @BrooklynNets    | NOP  | @PelicansNBA     |
-| CHA  | @hornets         | NYK  | @nyknicks        |
-| CHI  | @chicagobulls    | OKC  | @okcthunder      |
-| CLE  | @cavs            | ORL  | @OrlandoMagic    |
-| DAL  | @dallasmavs      | PHI  | @sixers          |
-| DEN  | @nuggets         | PHX  | @Suns            |
-| DET  | @DetroitPistons  | POR  | @trailblazers    |
-| GSW  | @warriors        | SAC  | @SacramentoKings |
-| HOU  | @HoustonRockets  | SAS  | @spurs           |
-| IND  | @Pacers          | TOR  | @Raptors         |
-| LAC  | @LAClippers      | UTA  | @utahjazz        |
-| LAL  | @Lakers          | WAS  | @WashWizards     |
-| MEM  | @memgrizz        |      |                  |
+**Not stored in frontend:** captions, media URLs, engagement metrics. The backend owns collection and spoiler filtering.
 
 ## Game Social Window
 
@@ -85,53 +45,23 @@ window_end   = game_start_time + 3 hours
 ```
 
 This window:
-- ✅ Captures pre-game hype and warmups
-- ✅ Captures in-game highlights
-- ✅ Captures most highlight clips
-- ❌ Avoids most post-game "FINAL" tweets
-
-Configuration is in `src/utils/spoilerFilter.ts`:
-
-```typescript
-export const GAME_WINDOW_CONFIG = {
-  preGameHours: 2,
-  postGameHours: 3,
-};
-```
+- Captures pre-game hype and warmups
+- Captures in-game highlights
+- Avoids most post-game "FINAL" posts
 
 ## Spoiler Filtering
 
-Even within the window, some posts should be excluded. The spoiler filter (`src/utils/spoilerFilter.ts`) checks for:
-
-### Hard Excludes
-
-1. **Score patterns**: `112-108`, `W 112-108`, etc.
-2. **Final keywords**: "FINAL", "game over", "we win", etc.
-3. **Recap content**: "recap", "post-game", etc.
-
-### Usage
-
-```typescript
-import { containsSpoiler, filterSpoilerPosts } from '../utils/spoilerFilter';
-
-// Single check
-if (containsSpoiler(tweetText)) {
-  // exclude this post
-}
-
-// Batch filter
-const safePosts = filterSpoilerPosts(posts, 'caption');
-```
+Spoiler filtering is handled in the backend at collection time. The frontend does not filter captions; it only masks them visually.
 
 ## Frontend Integration
 
-### TweetEmbed Component
+### PostEmbed Component
 
 Uses X's official embed widget:
 
 ```tsx
 <blockquote className="twitter-tweet">
-  <a href={tweetUrl}></a>
+  <a href={postUrl}></a>
 </blockquote>
 ```
 

@@ -42,7 +42,7 @@ export interface TimelinePost {
   id: string;
   gameId: string;
   team: string;
-  tweetUrl: string;
+  postUrl: string;
   postedAt: string;
   hasVideo?: boolean;
 }
@@ -60,7 +60,7 @@ export class MockPostAdapter implements PostAdapter {
 
     try {
       const normalized = posts.map((post, index) => this.normalizePost(post as FlexibleRecord, index));
-      const filtered = normalized.filter((post) => post.gameId === gameId && post.tweetUrl);
+      const filtered = normalized.filter((post) => post.gameId === gameId && post.postUrl);
 
       if (!filtered.length) {
         console.warn(`MockPostAdapter: no posts found for game ${gameId}.`);
@@ -81,12 +81,12 @@ export class MockPostAdapter implements PostAdapter {
   }
 
   private normalizePost(post: FlexibleRecord, index: number): TimelinePost {
-    const tweetUrl = getStringValue(post, ['tweet_url', 'tweetUrl', 'url']) ?? '';
-    const fallbackId = tweetUrl || `post-${index}`;
+    const postUrl = getStringValue(post, ['post_url', 'tweet_url', 'tweetUrl', 'url']) ?? '';
+    const fallbackId = postUrl || `post-${index}`;
     return {
       id: getStringValue(post, ['id', 'post_id', 'tweet_id', 'tweetId']) ?? fallbackId,
       gameId: getStringValue(post, ['game_id', 'gameId', 'game']) ?? '',
-      tweetUrl,
+      postUrl,
       postedAt: getStringValue(post, ['posted_at', 'postedAt', 'timestamp']) ?? '',
       hasVideo: getBooleanValue(post, ['has_video', 'hasVideo', 'video']),
       team: getStringValue(post, ['team', 'team_id', 'teamId']) ?? '',
