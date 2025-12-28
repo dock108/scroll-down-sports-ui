@@ -13,7 +13,7 @@ const DataError = ({ message, onRetry }: DataErrorProps) => {
         {onRetry && (
           <button
             onClick={onRetry}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="min-h-[48px] rounded-full bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
           >
             Try Again
           </button>
@@ -27,4 +27,3 @@ const DataError = ({ message, onRetry }: DataErrorProps) => {
 };
 
 export default DataError;
-

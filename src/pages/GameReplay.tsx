@@ -168,7 +168,7 @@ const GameReplay = () => {
 
   if (error) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <main className="mx-auto min-h-screen max-w-3xl px-5 py-12 sm:px-8">
         <DataError message={error} onRetry={handleRetry} />
       </main>
     );
@@ -176,7 +176,7 @@ const GameReplay = () => {
 
   if (isLoading) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <main className="mx-auto min-h-screen max-w-3xl px-5 py-12 sm:px-8">
         <div className="space-y-4 animate-pulse">
           <div className="h-4 w-32 rounded-full bg-gray-200"></div>
           <div className="h-8 w-3/4 rounded-full bg-gray-200"></div>
@@ -199,9 +199,12 @@ const GameReplay = () => {
 
   if (!game) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
-        <p className="text-gray-600">Game not found.</p>
-        <Link className="mt-4 inline-flex text-blue-600 underline" to="/games">
+      <main className="mx-auto min-h-screen max-w-3xl px-5 py-12 sm:px-8">
+        <p className="text-sm text-gray-600 sm:text-base">Game not found.</p>
+        <Link
+          className="mt-6 inline-flex min-h-[44px] items-center rounded-full border border-blue-100 px-4 text-sm font-semibold text-blue-600"
+          to="/games"
+        >
           Back to games
         </Link>
       </main>
@@ -211,8 +214,11 @@ const GameReplay = () => {
   const dateLabel = formatGameDate(game.date);
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 pb-28 pt-10">
-      <Link className="text-xs uppercase tracking-[0.3em] text-gray-500" to="/games">
+    <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-5 pb-40 pt-8 sm:px-8 sm:pb-32 sm:pt-10">
+      <Link
+        className="inline-flex min-h-[44px] items-center rounded-full border border-gray-200 px-4 text-xs uppercase tracking-[0.3em] text-gray-500"
+        to="/games"
+      >
         Back to games
       </Link>
       <GameHeader
@@ -241,8 +247,8 @@ const GameReplay = () => {
       {!spoilersAllowed ? (
         <section className="space-y-6">
           <div className="space-y-1">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
-            <p className="text-sm text-gray-600">Reveal when you're ready.</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 sm:text-sm">Final stats (hidden)</p>
+            <p className="text-sm text-gray-600 sm:text-base">Reveal when you're ready.</p>
           </div>
           <StatsTeaser />
           <RevealScoreButton
