@@ -76,7 +76,7 @@ const DatePicker = () => {
           <button
             type="button"
             onClick={handleSubmit}
-            className="mt-5 inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
+            className="btn-primary btn-primary--md btn-primary--pill btn-shadow-sm mt-5"
           >
             Load games
           </button>

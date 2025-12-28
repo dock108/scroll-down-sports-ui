@@ -1,30 +1,25 @@
 @import "tailwindcss";
+@import "./styles/theme.css";
 
 :root {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --text: #1c1c1c;
-  --muted: #5a5a5a;
-  --border: #e5e5e5;
-  --accent: #2f6fed;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .tweet-shell {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  padding: 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: var(--space-4);
   min-height: clamp(240px, 60vw, 420px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-lg);
 }
 
 .tweet-shell blockquote {
@@ -33,4 +28,53 @@ body {
 
 .tweet-shell iframe {
   width: 100% !important;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-weight: 600;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-primary--hover-strong:hover {
+  background: var(--color-accent-strong);
+}
+
+.btn-primary--sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-md);
+}
+
+.btn-primary--md {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-sm);
+}
+
+.btn-primary--lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-sm);
+}
+
+.btn-primary--rounded {
+  border-radius: var(--radius-sm);
+}
+
+.btn-primary--pill {
+  border-radius: var(--radius-pill);
+}
+
+.btn-shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-shadow-md {
+  box-shadow: var(--shadow-md);
 }
