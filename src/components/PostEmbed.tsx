@@ -116,7 +116,7 @@ const PostEmbed = ({ postUrl, hasVideo }: PostEmbedProps) => {
           <a href={normalizedUrl}></a>
         </blockquote>
         {embedStatus === 'loading' ? (
-          <div className="tweet-skeleton" aria-hidden="true">
+          <div className="tweet-skeleton" role="status" aria-live="polite">
             Loading {hasVideo ? 'highlight' : 'moment'}…
           </div>
         ) : null}
