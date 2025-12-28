@@ -39,22 +39,22 @@ const DatePicker = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-10">
-      <div className="space-y-6">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-6 py-12">
+      <div className="space-y-8">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
-        <h1 className="text-4xl font-semibold">Pick your spoiler-safe date range</h1>
-        <p className="text-gray-600">
-          Browse finished games without scores. Highlights scroll like an article. Reveal the final score only when you say so.
-        </p>
-        {parsedParams.hasInvalid ? (
-          <p className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-amber-700">
-            Invalid dates detected — defaults loaded.
+        <div className="space-y-4">
+          <h1 className="text-4xl font-semibold text-gray-900">Watch finished games spoiler-free</h1>
+          <p className="max-w-2xl text-lg text-gray-600">
+            Pick a date range and dive into completed games with highlights and stories first. Reveal the final score only when
+            you are ready.
           </p>
+        </div>
+        {parsedParams.hasInvalid ? (
+          <p className="text-sm font-medium text-amber-600">Invalid dates detected — defaults loaded.</p>
         ) : null}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <label className="text-xs uppercase tracking-[0.3em] text-gray-500">Date range</label>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-2">
               <span className="text-xs uppercase tracking-[0.3em] text-gray-500">Start date</span>
               <input
                 type="date"
@@ -63,7 +63,7 @@ const DatePicker = () => {
                 className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex-1 space-y-2">
               <span className="text-xs uppercase tracking-[0.3em] text-gray-500">End date</span>
               <input
                 type="date"
@@ -72,14 +72,14 @@ const DatePicker = () => {
                 className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 sm:w-auto"
+            >
+              Browse games
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="mt-5 inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
-          >
-            Load games
-          </button>
         </div>
       </div>
     </main>
