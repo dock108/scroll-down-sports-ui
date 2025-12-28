@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import PageLayout from '../components/PageLayout';
 
 const DatePicker = () => {
   const navigate = useNavigate();
@@ -39,50 +40,56 @@ const DatePicker = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-10">
-      <div className="space-y-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
-        <h1 className="text-4xl font-semibold">Pick your spoiler-safe date range</h1>
-        <p className="text-gray-600">
-          Browse finished games without scores. Highlights scroll like an article. Reveal the final score only when you say so.
-        </p>
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-6 py-12">
+      <div className="space-y-10">
+        <div className="space-y-4">
+          <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
+          <h1 className="text-4xl font-semibold text-gray-900">Watch finished games spoiler-free</h1>
+          <p className="max-w-2xl text-lg text-gray-600">
+            Pick a date range to browse completed matchups with no scores shown. Read the game story like an article, then
+            reveal the final when you&apos;re ready.
+          </p>
+        </div>
         {parsedParams.hasInvalid ? (
-          <p className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-amber-700">
+          <p className="text-sm font-medium text-amber-700">
             Invalid dates detected — defaults loaded.
           </p>
         ) : null}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <label className="text-xs uppercase tracking-[0.3em] text-gray-500">Date range</label>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">Start date</span>
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Choose your dates</p>
+            <p className="text-sm text-gray-500">We&apos;ll show games that finished inside this window.</p>
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <label className="flex flex-1 flex-col gap-2 text-xs uppercase tracking-[0.3em] text-gray-500">
+              Start date
               <input
                 type="date"
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
-            </div>
-            <div className="space-y-2">
-              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">End date</span>
+            </label>
+            <label className="flex flex-1 flex-col gap-2 text-xs uppercase tracking-[0.3em] text-gray-500">
+              End date
               <input
                 type="date"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
-            </div>
+            </label>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="inline-flex h-12 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 sm:mb-1"
+            >
+              Browse games
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="mt-5 inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
-          >
-            Load games
-          </button>
         </div>
       </div>
-    </main>
+    </PageLayout>
   );
 };
 

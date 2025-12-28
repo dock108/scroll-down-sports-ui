@@ -44,7 +44,7 @@ const getMinutes = (raw: Record<string, any>): number => {
       if (!isNaN(parsed)) return parsed;
     }
   }
-  return 0;
+        return 0;
 };
 
 // Format stat value - round minutes to 2 decimal places
@@ -156,13 +156,14 @@ const FinalStats = ({
           <p className="text-sm font-semibold text-gray-800">{teamName}</p>
           <span className="text-xs uppercase tracking-[0.2em] text-gray-400">{label}</span>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="relative overflow-x-auto rounded-xl border border-gray-200">
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white/90 to-transparent sm:hidden" />
           <table className="w-full text-sm text-gray-800 whitespace-nowrap">
             <thead className="bg-gray-50 text-xs uppercase tracking-[0.15em] text-gray-500">
               <tr>
-                <th className="px-3 py-2 text-left sticky left-0 bg-gray-50">Player</th>
+                <th className="sticky top-0 left-0 z-30 bg-gray-50 px-3 py-2 text-left">Player</th>
                 {allPlayerStatKeys.map((key) => (
-                  <th key={key} className="px-2 py-2 text-right">
+                  <th key={key} className="sticky top-0 z-20 bg-gray-50 px-2 py-2 text-right tabular-nums">
                     {formatStatLabel(key)}
                   </th>
                 ))}
@@ -170,10 +171,13 @@ const FinalStats = ({
             </thead>
             <tbody>
               {players.map((p, idx) => (
-                <tr key={`${p.player_name}-${idx}`} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-3 py-2 font-medium sticky left-0 bg-white">{p.player_name}</td>
+                <tr
+                  key={`${p.player_name}-${idx}`}
+                  className="group border-t border-gray-100 odd:bg-gray-50/60 hover:bg-gray-50/80"
+                >
+                  <td className="sticky left-0 z-10 bg-white group-odd:bg-gray-50 px-3 py-2 font-medium">{p.player_name}</td>
                   {allPlayerStatKeys.map((key) => (
-                    <td key={key} className="px-2 py-2 text-right">
+                    <td key={key} className="px-2 py-2 text-right tabular-nums">
                       {formatStatValue(key, p.raw_stats?.[key])}
                     </td>
                   ))}
@@ -188,16 +192,38 @@ const FinalStats = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-white transition-all duration-500 ${
-        revealed
-          ? 'max-h-none translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
-          : 'max-h-0 translate-y-4 border border-transparent p-0 opacity-0'
+      className={`grid transition-all duration-700 ease-out ${
+        revealed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
       }`}
       aria-hidden={!revealed}
     >
+      <div
+        className={`overflow-hidden rounded-2xl bg-white transition-all duration-700 ease-out ${
+          revealed
+            ? 'translate-y-0 border border-gray-200 p-6 shadow-sm'
+            : 'translate-y-4 border border-transparent p-0'
+        }`}
+      >
       <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">Final Score + Stats</p>
 
-      {/* 1. PLAYER STATS - Box score by team */}
+      {/* 1. FINAL SCORE */}
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 mb-8">
+        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
+        <div className="flex items-center justify-between py-2 border-b border-gray-200">
+          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
+          </div>
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. PLAYER STATS - Box score by team */}
       {(awayPlayers.length > 0 || homePlayers.length > 0) && (
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Box Score</p>
@@ -206,7 +232,7 @@ const FinalStats = ({
         </div>
       )}
 
-      {/* 2. TEAM STATS - Full display for each team (excluding points) */}
+      {/* 3. TEAM STATS - Full display for each team (excluding points) */}
       {(awayTeamStats || homeTeamStats) && (
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-3">Team Stats</p>
@@ -249,30 +275,14 @@ const FinalStats = ({
         </div>
       )}
 
-      {/* 3. FINAL SCORE */}
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
-        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
-        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
-          </div>
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
-          </div>
-        </div>
-      </div>
-
       {/* Attendance */}
       {attendance > 0 && (
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-center">
           <div className="text-2xl font-semibold text-gray-900">{attendance.toLocaleString()}</div>
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
-        </div>
+            </div>
       )}
+      </div>
     </div>
   );
 };

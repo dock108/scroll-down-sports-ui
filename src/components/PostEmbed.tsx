@@ -4,7 +4,6 @@ import '../styles/tweetMask.css';
 interface PostEmbedProps {
   postUrl: string;
   hasVideo: boolean;
-  spoilersAllowed: boolean;
 }
 
 const EMBED_TIMEOUT_MS = 5000;
@@ -62,7 +61,7 @@ const normalizePostUrl = (url: string) => {
   }
 };
 
-const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
+const PostEmbed = ({ postUrl, hasVideo }: PostEmbedProps) => {
   const normalizedUrl = useMemo(() => normalizePostUrl(postUrl), [postUrl]);
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [locallyRevealed, setLocallyRevealed] = useState(false);
