@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import GameHeader from '../components/GameHeader';
 import PostEmbed from '../components/PostEmbed';
@@ -12,11 +12,6 @@ import { GameDetails } from '../adapters/GameAdapter';
 import { TimelinePost } from '../adapters/PostAdapter';
 import { getGameAdapter, getSocialPostAdapter, ApiConnectionError } from '../adapters';
 import { logUiEvent } from '../utils/uiTelemetry';
-
-const DWELL_TIME_MS = 1400;
-const VELOCITY_THRESHOLD = 0.7;
-const END_BUFFER_PX = 240;
-const ORIENTATION_LOCK_MS = 1800;
 
 const formatGameDate = (value?: string) => {
   if (!value) {
@@ -38,16 +33,11 @@ const formatGameDate = (value?: string) => {
 const GameReplay = () => {
   const { gameId } = useParams();
   const { spoilersAllowed, revealSpoilers } = useSpoilerState();
-  const [revealUnlocked, setRevealUnlocked] = useState(false);
   const [game, setGame] = useState<GameDetails | null | undefined>(undefined);
   const [timelinePosts, setTimelinePosts] = useState<TimelinePost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
-  const lastScrollY = useRef<number | null>(null);
-  const lastScrollTime = useRef<number | null>(null);
-  const dwellTimer = useRef<number | null>(null);
-  const orientationLockUntil = useRef<number | null>(null);
 
   const gameAdapter = useMemo(() => getGameAdapter(), []);
   const postAdapter = useMemo(() => getSocialPostAdapter(), []);
@@ -97,70 +87,6 @@ const GameReplay = () => {
       isActive = false;
     };
   }, [gameAdapter, gameId, postAdapter, retryCount]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (revealUnlocked || spoilersAllowed) {
-        return;
-      }
-      const now = Date.now();
-      if (orientationLockUntil.current && now < orientationLockUntil.current) {
-        return;
-      }
-      const currentY = window.scrollY;
-      const lastY = lastScrollY.current;
-      const lastTime = lastScrollTime.current;
-
-      if (lastY !== null && lastTime !== null) {
-        const deltaY = Math.abs(currentY - lastY);
-        const deltaT = Math.max(now - lastTime, 1);
-        const velocity = deltaY / deltaT;
-        const nearEnd = window.innerHeight + window.scrollY >= document.body.scrollHeight - END_BUFFER_PX;
-
-        if (velocity < VELOCITY_THRESHOLD && nearEnd) {
-          if (!dwellTimer.current) {
-            dwellTimer.current = window.setTimeout(() => {
-              setRevealUnlocked(true);
-              logUiEvent('scroll_boundary_reached');
-              dwellTimer.current = null;
-            }, DWELL_TIME_MS);
-          }
-        } else {
-          if (dwellTimer.current) {
-            window.clearTimeout(dwellTimer.current);
-            dwellTimer.current = null;
-          }
-        }
-      }
-
-      lastScrollY.current = currentY;
-      lastScrollTime.current = now;
-    };
-
-    const handleOrientationChange = () => {
-      orientationLockUntil.current = Date.now() + ORIENTATION_LOCK_MS;
-      if (dwellTimer.current) {
-        window.clearTimeout(dwellTimer.current);
-        dwellTimer.current = null;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('orientationchange', handleOrientationChange);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      if (dwellTimer.current) {
-        window.clearTimeout(dwellTimer.current);
-        dwellTimer.current = null;
-      }
-    };
-  }, [revealUnlocked, spoilersAllowed]);
-
-  useEffect(() => {
-    setRevealUnlocked(false);
-  }, [gameId]);
 
   const handleRetry = () => {
     setRetryCount((c) => c + 1);
