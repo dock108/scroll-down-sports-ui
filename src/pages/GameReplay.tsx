@@ -209,7 +209,6 @@ const GameReplay = () => {
   }
 
   const dateLabel = formatGameDate(game.date);
-  const showRevealButton = revealUnlocked && !spoilersAllowed;
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 pb-28 pt-10">
@@ -239,26 +238,30 @@ const GameReplay = () => {
         )}
       </section>
       <TimelineDivider />
-      <section className="space-y-6">
-        <div className="space-y-1">
-          <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
-          <p className="text-sm text-gray-600">Reveal when you're ready.</p>
-        </div>
-        <StatsTeaser />
-      </section>
-      {showRevealButton ? (
-        <RevealScoreButton
-          onReveal={() => {
-            revealSpoilers();
-            logUiEvent('reveal_clicked');
-          }}
-        />
+      {!spoilersAllowed ? (
+        <section className="space-y-6">
+          <div className="space-y-1">
+            <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
+            <p className="text-sm text-gray-600">Reveal when you're ready.</p>
+          </div>
+          <StatsTeaser />
+          <RevealScoreButton
+            onReveal={() => {
+              revealSpoilers();
+              logUiEvent('reveal_clicked');
+            }}
+          />
+        </section>
       ) : null}
       <FinalStats
         revealed={spoilersAllowed}
         homeTeam={game.homeTeam || 'Home'}
         awayTeam={game.awayTeam || 'Away'}
         attendance={game.attendance ?? 0}
+        homeScore={game.homeScore}
+        awayScore={game.awayScore}
+        teamStats={game.teamStats}
+        playerStats={game.playerStats}
       />
     </main>
   );

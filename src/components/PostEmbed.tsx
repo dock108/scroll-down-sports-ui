@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { logUiEvent } from '../utils/uiTelemetry';
 import '../styles/tweetMask.css';
 
 interface PostEmbedProps {
@@ -8,8 +7,7 @@ interface PostEmbedProps {
   spoilersAllowed: boolean;
 }
 
-const REVEAL_DWELL_MS = 700;
-const EMBED_TIMEOUT_MS = 2500;
+const EMBED_TIMEOUT_MS = 5000;
 
 let twitterScriptPromise: Promise<void> | null = null;
 
@@ -39,37 +37,24 @@ const loadTwitterScript = () => {
   return twitterScriptPromise;
 };
 
+const normalizePostUrl = (url: string) => {
+  if (!url) return '';
+  let normalized = url.trim();
+  if (normalized.startsWith('x.com')) {
+    normalized = `https://${normalized}`;
+  }
+  if (!normalized.startsWith('http')) {
+    normalized = `https://${normalized}`;
+  }
+  normalized = normalized.replace('://x.com/', '://twitter.com/');
+  return normalized;
+};
+
 const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
-  const [captionRevealed, setCaptionRevealed] = useState(false);
+  const normalizedUrl = useMemo(() => normalizePostUrl(postUrl), [postUrl]);
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
-  const [maskHeight, setMaskHeight] = useState(90);
-  const revealTimer = useRef<number | null>(null);
   const embedTimeout = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const inViewRef = useRef(false);
-
-  const clearRevealTimer = () => {
-    if (revealTimer.current) {
-      window.clearTimeout(revealTimer.current);
-      revealTimer.current = null;
-    }
-  };
-
-  const handleRevealIntent = () => {
-    if (spoilersAllowed || revealTimer.current || !inViewRef.current) {
-      return;
-    }
-    revealTimer.current = window.setTimeout(() => {
-      setCaptionRevealed(true);
-      logUiEvent('caption_unmasked');
-      revealTimer.current = null;
-    }, REVEAL_DWELL_MS);
-  };
-
-  const maskVisible = useMemo(
-    () => embedStatus === 'ready' && !spoilersAllowed && !captionRevealed,
-    [captionRevealed, embedStatus, spoilersAllowed],
-  );
 
   useEffect(() => {
     let isActive = true;
@@ -108,106 +93,20 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
         embedTimeout.current = null;
       }
     };
-  }, [postUrl]);
-
-  useEffect(() => {
-    return () => {
-      clearRevealTimer();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (spoilersAllowed) {
-      setCaptionRevealed(true);
-    } else {
-      setCaptionRevealed(false);
-    }
-  }, [spoilersAllowed]);
-
-  useEffect(() => {
-    if (!containerRef.current) {
-      return;
-    }
-
-    const handleScroll = () => {
-      clearRevealTimer();
-      if (!spoilersAllowed && inViewRef.current) {
-        setCaptionRevealed(false);
-        handleRevealIntent();
-      }
-    };
-
-    const handleResize = () => {
-      clearRevealTimer();
-      setCaptionRevealed(false);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [spoilersAllowed]);
-
-  useEffect(() => {
-    if (!containerRef.current) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        inViewRef.current = entry?.isIntersecting ?? false;
-        if (!inViewRef.current && !spoilersAllowed) {
-          clearRevealTimer();
-          setCaptionRevealed(false);
-        }
-      },
-      { threshold: 0.6 },
-    );
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [spoilersAllowed]);
-
-  useEffect(() => {
-    if (!containerRef.current) {
-      return;
-    }
-
-    const updateMaskHeight = () => {
-      const containerHeight = containerRef.current?.getBoundingClientRect().height ?? 0;
-      if (!containerHeight) {
-        return;
-      }
-      const nextHeight = Math.min(160, Math.max(80, containerHeight * 0.28));
-      setMaskHeight(nextHeight);
-    };
-
-    updateMaskHeight();
-    const resizeObserver = new ResizeObserver(updateMaskHeight);
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, [embedStatus]);
+  }, [normalizedUrl]);
 
   return (
-    <div className="space-y-3 mb-6">
-      <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-gray-400">
+    <div className="space-y-1 mb-2">
+      <div className="flex items-center justify-between text-[0.6rem] uppercase tracking-[0.2em] text-gray-400">
         <span>{hasVideo ? 'Video Highlight' : 'Moment'}</span>
         <span>Official Team Post</span>
       </div>
       <div
         ref={containerRef}
         className="tweet-shell focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
-        onFocus={handleRevealIntent}
-        onBlur={clearRevealTimer}
-        onClick={handleRevealIntent}
-        tabIndex={0}
       >
         <blockquote className="twitter-tweet">
-          <a href={postUrl}></a>
+          <a href={normalizedUrl}></a>
         </blockquote>
         {embedStatus === 'loading' ? (
           <div className="tweet-skeleton" aria-hidden="true">
@@ -220,15 +119,10 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
           <div className="tweet-fallback">
             <p>
               Highlight unavailable —{' '}
-              <a href={postUrl} target="_blank" rel="noreferrer">
+              <a href={normalizedUrl} target="_blank" rel="noreferrer">
                 open on X
               </a>
             </p>
-          </div>
-        ) : null}
-        {maskVisible ? (
-          <div className="caption-mask" style={{ height: `${maskHeight}px` }}>
-            <span>Pause to preview caption</span>
           </div>
         ) : null}
       </div>
