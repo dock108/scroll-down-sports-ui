@@ -7,6 +7,7 @@ import StatsTeaser from '../components/StatsTeaser';
 import RevealScoreButton from '../components/RevealScoreButton';
 import FinalStats from '../components/FinalStats';
 import DataError from '../components/DataError';
+import PageLayout from '../components/PageLayout';
 import useSpoilerState from '../hooks/useSpoilerState';
 import { GameDetails } from '../adapters/GameAdapter';
 import { TimelinePost } from '../adapters/PostAdapter';
@@ -168,15 +169,15 @@ const GameReplay = () => {
 
   if (error) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <PageLayout contentClassName="space-y-0">
         <DataError message={error} onRetry={handleRetry} />
-      </main>
+      </PageLayout>
     );
   }
 
   if (isLoading) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <PageLayout contentClassName="space-y-0">
         <div className="space-y-4 animate-pulse">
           <div className="h-4 w-32 rounded-full bg-gray-200"></div>
           <div className="h-8 w-3/4 rounded-full bg-gray-200"></div>
@@ -193,25 +194,25 @@ const GameReplay = () => {
             </div>
           ))}
         </div>
-      </main>
+      </PageLayout>
     );
   }
 
   if (!game) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <PageLayout contentClassName="space-y-0">
         <p className="text-gray-600">Game not found.</p>
         <Link className="mt-4 inline-flex text-blue-600 underline" to="/games">
           Back to games
         </Link>
-      </main>
+      </PageLayout>
     );
   }
 
   const dateLabel = formatGameDate(game.date);
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl space-y-12 px-6 pb-28 pt-10">
+    <PageLayout className="pt-10 pb-28" contentClassName="space-y-12">
       <Link className="text-xs uppercase tracking-[0.3em] text-gray-500" to="/games">
         Back to games
       </Link>
@@ -263,7 +264,7 @@ const GameReplay = () => {
         teamStats={game.teamStats}
         playerStats={game.playerStats}
       />
-    </main>
+    </PageLayout>
   );
 };
 
