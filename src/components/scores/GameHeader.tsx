@@ -5,7 +5,7 @@ interface GameHeaderProps {
   dateLabel: string;
 }
 
-const GameHeader = ({ awayTeam, homeTeam, venue, dateLabel }: GameHeaderProps) => {
+export const GameHeader = ({ awayTeam, homeTeam, venue, dateLabel }: GameHeaderProps) => {
   return (
     <header className="space-y-3">
       <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
@@ -18,5 +18,3 @@ const GameHeader = ({ awayTeam, homeTeam, venue, dateLabel }: GameHeaderProps) =
     </header>
   );
 };
-
-export default GameHeader;

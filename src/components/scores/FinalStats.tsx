@@ -1,19 +1,5 @@
 import { useMemo } from 'react';
-
-interface TeamStat {
-  team: string;
-  is_home: boolean;
-  stats: Record<string, any>;
-}
-
-interface PlayerStat {
-  team: string;
-  player_name: string;
-  points?: number;
-  rebounds?: number;
-  assists?: number;
-  raw_stats: Record<string, any>;
-}
+import type { PlayerStat, StatRecord, StatValue, TeamStat } from '../../adapters/GameAdapter';
 
 interface FinalStatsProps {
   homeTeam: string;
@@ -27,7 +13,7 @@ interface FinalStatsProps {
 }
 
 // Get minutes from raw_stats (could be "minutes", "min", "minutes_played", etc.)
-const getMinutes = (raw: Record<string, any>): number => {
+const getMinutes = (raw: StatRecord): number => {
   const keys = ['minutes', 'min', 'minutes_played', 'mins', 'mp'];
   for (const key of keys) {
     const val = raw[key];
@@ -44,11 +30,11 @@ const getMinutes = (raw: Record<string, any>): number => {
       if (!isNaN(parsed)) return parsed;
     }
   }
-        return 0;
+  return 0;
 };
 
 // Format stat value - round minutes to 2 decimal places
-const formatStatValue = (key: string, val: any): string => {
+const formatStatValue = (key: string, val: StatValue): string => {
   if (val === undefined || val === null) return '—';
   const lowerKey = key.toLowerCase();
   // Check if this is a minutes field
@@ -76,9 +62,17 @@ const formatStatLabel = (key: string): string => {
 };
 
 // Exclude points from team stats (it's in final score) and metadata fields
-const TEAM_STAT_EXCLUDES = ['points', 'pts', 'score', 'source', 'updated_at', 'game_score', 'plus_minus'];
+const TEAM_STAT_EXCLUDES = [
+  'points',
+  'pts',
+  'score',
+  'source',
+  'updated_at',
+  'game_score',
+  'plus_minus',
+];
 
-const FinalStats = ({
+export const FinalStats = ({
   homeTeam,
   awayTeam,
   attendance,
@@ -96,7 +90,40 @@ const FinalStats = ({
       Object.keys(p.raw_stats || {}).forEach((k) => keySet.add(k));
     });
     // Prioritize common stats first
-    const priority = ['minutes', 'min', 'mp', 'pts', 'points', 'reb', 'rebounds', 'ast', 'assists', 'stl', 'steals', 'blk', 'blocks', 'tov', 'to', 'turnovers', 'fg', 'fga', 'fg_pct', 'fg3', '3p', 'fg3a', '3pa', 'fg3_pct', '3p_pct', 'ft', 'fta', 'ft_pct', 'orb', 'drb', 'trb', 'pf'];
+    const priority = [
+      'minutes',
+      'min',
+      'mp',
+      'pts',
+      'points',
+      'reb',
+      'rebounds',
+      'ast',
+      'assists',
+      'stl',
+      'steals',
+      'blk',
+      'blocks',
+      'tov',
+      'to',
+      'turnovers',
+      'fg',
+      'fga',
+      'fg_pct',
+      'fg3',
+      '3p',
+      'fg3a',
+      '3pa',
+      'fg3_pct',
+      '3p_pct',
+      'ft',
+      'fta',
+      'ft_pct',
+      'orb',
+      'drb',
+      'trb',
+      'pf',
+    ];
     const keys = Array.from(keySet);
     return keys.sort((a, b) => {
       const aIdx = priority.indexOf(a.toLowerCase());
@@ -119,12 +146,12 @@ const FinalStats = ({
   // Split players by team
   const awayTeamName = teamStats?.find((t) => !t.is_home)?.team;
   const homeTeamName = teamStats?.find((t) => t.is_home)?.team;
-  
+
   const awayPlayers = useMemo(() => {
     if (!awayTeamName) return filteredPlayers.filter((p) => p.team !== homeTeamName);
     return filteredPlayers.filter((p) => p.team === awayTeamName);
   }, [filteredPlayers, awayTeamName, homeTeamName]);
-  
+
   const homePlayers = useMemo(() => {
     if (!homeTeamName) return filteredPlayers.filter((p) => p.team !== awayTeamName);
     return filteredPlayers.filter((p) => p.team === homeTeamName);
@@ -135,7 +162,7 @@ const FinalStats = ({
   const homeTeamStats = teamStats?.find((t) => t.is_home);
 
   // Filter out points and metadata from team stats, include all numeric-like values
-  const filterTeamStats = (stats: Record<string, any>) => {
+  const filterTeamStats = (stats: StatRecord) => {
     return Object.entries(stats || {}).filter(([key, v]) => {
       // Exclude points and metadata fields
       if (TEAM_STAT_EXCLUDES.includes(key.toLowerCase())) return false;
@@ -163,7 +190,10 @@ const FinalStats = ({
               <tr>
                 <th className="sticky top-0 left-0 z-30 bg-gray-50 px-3 py-2 text-left">Player</th>
                 {allPlayerStatKeys.map((key) => (
-                  <th key={key} className="sticky top-0 z-20 bg-gray-50 px-2 py-2 text-right tabular-nums">
+                  <th
+                    key={key}
+                    className="sticky top-0 z-20 bg-gray-50 px-2 py-2 text-right tabular-nums"
+                  >
                     {formatStatLabel(key)}
                   </th>
                 ))}
@@ -175,7 +205,9 @@ const FinalStats = ({
                   key={`${p.player_name}-${idx}`}
                   className="group border-t border-gray-100 odd:bg-gray-50/60 hover:bg-gray-50/80"
                 >
-                  <td className="sticky left-0 z-10 bg-white group-odd:bg-gray-50 px-3 py-2 font-medium">{p.player_name}</td>
+                  <td className="sticky left-0 z-10 bg-white group-odd:bg-gray-50 px-3 py-2 font-medium">
+                    {p.player_name}
+                  </td>
                   {allPlayerStatKeys.map((key) => (
                     <td key={key} className="px-2 py-2 text-right tabular-nums">
                       {formatStatValue(key, p.raw_stats?.[key])}
@@ -204,87 +236,89 @@ const FinalStats = ({
             : 'translate-y-4 border border-transparent p-0'
         }`}
       >
-      <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">Player Stats + Team Stats + Final Score</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">
+          Player Stats + Team Stats + Final Score
+        </p>
 
-      {/* 1. PLAYER STATS - Box score by team */}
-      {(awayPlayers.length > 0 || homePlayers.length > 0) && (
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Box Score</p>
-          {renderBoxScore(awayPlayers, awayTeamStats?.team || awayTeam, 'Away')}
-          {renderBoxScore(homePlayers, homeTeamStats?.team || homeTeam, 'Home')}
-        </div>
-      )}
+        {/* 1. PLAYER STATS - Box score by team */}
+        {(awayPlayers.length > 0 || homePlayers.length > 0) && (
+          <div className="mb-8">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Box Score</p>
+            {renderBoxScore(awayPlayers, awayTeamStats?.team || awayTeam, 'Away')}
+            {renderBoxScore(homePlayers, homeTeamStats?.team || homeTeam, 'Home')}
+          </div>
+        )}
 
-      {/* 2. TEAM STATS - Full display for each team (excluding points) */}
-      {(awayTeamStats || homeTeamStats) && (
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-3">Team Stats</p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Away Team */}
-            {awayTeamStats && (
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
-                <div className="flex items-baseline justify-between mb-4">
-                  <div className="text-lg font-semibold text-gray-800">{awayTeamStats.team}</div>
-                  <span className="text-xs uppercase tracking-[0.2em] text-gray-400">Away</span>
+        {/* 2. TEAM STATS - Full display for each team (excluding points) */}
+        {(awayTeamStats || homeTeamStats) && (
+          <div className="mb-8">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-3">Team Stats</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Away Team */}
+              {awayTeamStats && (
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-baseline justify-between mb-4">
+                    <div className="text-lg font-semibold text-gray-800">{awayTeamStats.team}</div>
+                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400">Away</span>
+                  </div>
+                  <dl className="space-y-2">
+                    {filterTeamStats(awayTeamStats.stats).map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between text-sm">
+                        <dt className="text-gray-500">{formatStatLabel(label)}</dt>
+                        <dd className="font-semibold text-gray-800">{String(value)}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-                <dl className="space-y-2">
-                  {filterTeamStats(awayTeamStats.stats).map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <dt className="text-gray-500">{formatStatLabel(label)}</dt>
-                      <dd className="font-semibold text-gray-800">{String(value)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
-            {/* Home Team */}
-            {homeTeamStats && (
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
-                <div className="flex items-baseline justify-between mb-4">
-                  <div className="text-lg font-semibold text-gray-800">{homeTeamStats.team}</div>
-                  <span className="text-xs uppercase tracking-[0.2em] text-gray-400">Home</span>
+              )}
+              {/* Home Team */}
+              {homeTeamStats && (
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-baseline justify-between mb-4">
+                    <div className="text-lg font-semibold text-gray-800">{homeTeamStats.team}</div>
+                    <span className="text-xs uppercase tracking-[0.2em] text-gray-400">Home</span>
+                  </div>
+                  <dl className="space-y-2">
+                    {filterTeamStats(homeTeamStats.stats).map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between text-sm">
+                        <dt className="text-gray-500">{formatStatLabel(label)}</dt>
+                        <dd className="font-semibold text-gray-800">{String(value)}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-                <dl className="space-y-2">
-                  {filterTeamStats(homeTeamStats.stats).map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <dt className="text-gray-500">{formatStatLabel(label)}</dt>
-                      <dd className="font-semibold text-gray-800">{String(value)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 3. FINAL SCORE */}
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 mb-8">
-        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
-        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
-          </div>
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
-          </div>
-        </div>
-      </div>
-
-      {/* Attendance */}
-      {attendance > 0 && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <div className="text-2xl font-semibold text-gray-900">{attendance.toLocaleString()}</div>
-          <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
+              )}
             </div>
-      )}
+          </div>
+        )}
+
+        {/* Final score appears last to preserve the spoiler-safe flow. */}
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 mb-8">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
+          <div className="flex items-center justify-between py-2 border-b border-gray-200">
+            <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
+            <div className="text-4xl font-bold text-gray-900">
+              {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
+            <div className="text-4xl font-bold text-gray-900">
+              {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
+            </div>
+          </div>
+        </div>
+
+        {/* Attendance */}
+        {attendance > 0 && (
+          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-center">
+            <div className="text-2xl font-semibold text-gray-900">
+              {attendance.toLocaleString()}
+            </div>
+            <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
-export default FinalStats;

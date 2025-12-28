@@ -60,7 +60,9 @@ export class MockPostAdapter implements PostAdapter {
     }
 
     try {
-      const normalized = posts.map((post, index) => this.normalizePost(post as FlexibleRecord, index));
+      const normalized = posts.map((post, index) =>
+        this.normalizePost(post as FlexibleRecord, index),
+      );
       const filtered = normalized.filter((post) => post.gameId === gameId && post.postUrl);
 
       if (!filtered.length) {
@@ -68,13 +70,12 @@ export class MockPostAdapter implements PostAdapter {
         return [];
       }
 
-      return filtered
-        .slice()
-        .sort((a, b) => {
-          const aTime = parseFlexibleDate(a.postedAt)?.getTime() ?? 0;
-          const bTime = parseFlexibleDate(b.postedAt)?.getTime() ?? 0;
-          return aTime - bTime;
-        });
+      // Timeline stays chronological so the replay mirrors game flow.
+      return filtered.slice().sort((a, b) => {
+        const aTime = parseFlexibleDate(a.postedAt)?.getTime() ?? 0;
+        const bTime = parseFlexibleDate(b.postedAt)?.getTime() ?? 0;
+        return aTime - bTime;
+      });
     } catch (error) {
       console.warn('MockPostAdapter: failed to load posts.', error);
       return [];
@@ -84,8 +85,7 @@ export class MockPostAdapter implements PostAdapter {
   private normalizePost(post: FlexibleRecord, index: number): TimelinePost {
     const postUrl = getStringValue(post, ['post_url', 'tweet_url', 'tweetUrl', 'url']) ?? '';
     const fallbackId = postUrl || `post-${index}`;
-    const idCandidate =
-      getStringValue(post, ['tweet_id', 'tweetId', 'id', 'post_id']) ?? '';
+    const idCandidate = getStringValue(post, ['tweet_id', 'tweetId', 'id', 'post_id']) ?? '';
     const parsedTweetId = extractTweetId(postUrl);
     const tweetId = parsedTweetId || (isTweetId(idCandidate) ? idCandidate : '');
     return {

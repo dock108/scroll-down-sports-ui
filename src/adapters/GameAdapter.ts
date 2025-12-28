@@ -28,15 +28,14 @@ const getStartersValue = (record: FlexibleRecord, keys: string[]): StartersValue
   for (const key of keys) {
     const value = record[key];
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      const starters = Object.entries(value as Record<string, unknown>).reduce<Record<string, string[]>>(
-        (acc, [team, roster]) => {
-          if (Array.isArray(roster) && roster.every((player) => typeof player === 'string')) {
-            acc[team] = roster as string[];
-          }
-          return acc;
-        },
-        {},
-      );
+      const starters = Object.entries(value as Record<string, unknown>).reduce<
+        Record<string, string[]>
+      >((acc, [team, roster]) => {
+        if (Array.isArray(roster) && roster.every((player) => typeof player === 'string')) {
+          acc[team] = roster as string[];
+        }
+        return acc;
+      }, {});
       return Object.keys(starters).length ? starters : undefined;
     }
   }
@@ -59,7 +58,8 @@ const parseFlexibleDate = (value?: string) => {
   return parsed;
 };
 
-const isValidDate = (value: Date | undefined) => value instanceof Date && !Number.isNaN(value.getTime());
+const isValidDate = (value: Date | undefined) =>
+  value instanceof Date && !Number.isNaN(value.getTime());
 
 export interface GameSummary {
   id: string;
@@ -70,23 +70,31 @@ export interface GameSummary {
   attendance?: number;
 }
 
+export type StatValue = string | number | null | undefined;
+
+export type StatRecord = Record<string, StatValue>;
+
+export interface TeamStat {
+  team: string;
+  is_home: boolean;
+  stats: StatRecord;
+}
+
+export interface PlayerStat {
+  team: string;
+  player_name: string;
+  points?: number;
+  rebounds?: number;
+  assists?: number;
+  raw_stats: StatRecord;
+}
+
 export interface GameDetails extends GameSummary {
   starters?: Record<string, string[]>;
   homeScore?: number;
   awayScore?: number;
-  teamStats?: Array<{
-    team: string;
-    is_home: boolean;
-    stats: Record<string, any>;
-  }>;
-  playerStats?: Array<{
-    team: string;
-    player_name: string;
-    points?: number;
-    rebounds?: number;
-    assists?: number;
-    raw_stats: Record<string, any>;
-  }>;
+  teamStats?: TeamStat[];
+  playerStats?: PlayerStat[];
 }
 
 export interface GameAdapter {

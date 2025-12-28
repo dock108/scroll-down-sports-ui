@@ -3,7 +3,7 @@ interface DataErrorProps {
   onRetry?: () => void;
 }
 
-const DataError = ({ message, onRetry }: DataErrorProps) => {
+export const DataError = ({ message, onRetry }: DataErrorProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-16">
       <div className="max-w-md text-center space-y-4">
@@ -25,5 +25,3 @@ const DataError = ({ message, onRetry }: DataErrorProps) => {
     </div>
   );
 };
-
-export default DataError;

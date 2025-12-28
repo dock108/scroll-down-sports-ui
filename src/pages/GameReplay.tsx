@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import GameHeader from '../components/GameHeader';
-import TweetEmbed from '../components/TweetEmbed';
-import TimelineDivider from '../components/TimelineDivider';
-import FinalStats from '../components/FinalStats';
-import DataError from '../components/DataError';
-import PageLayout from '../components/PageLayout';
+import { TweetEmbed } from '../components/embeds/TweetEmbed';
+import { DataError } from '../components/feedback/DataError';
+import { PageLayout } from '../components/layout/PageLayout';
+import { FinalStats } from '../components/scores/FinalStats';
+import { GameHeader } from '../components/scores/GameHeader';
+import { TimelineDivider } from '../components/timeline/TimelineDivider';
 import { GameDetails } from '../adapters/GameAdapter';
 import { TimelinePost } from '../adapters/PostAdapter';
 import { getGameAdapter, getSocialPostAdapter, ApiConnectionError } from '../adapters';
@@ -27,7 +27,7 @@ const formatGameDate = (value?: string) => {
   });
 };
 
-const GameReplay = () => {
+export const GameReplay = () => {
   const { gameId } = useParams();
   const [game, setGame] = useState<GameDetails | null | undefined>(undefined);
   const [timelinePosts, setTimelinePosts] = useState<TimelinePost[]>([]);
@@ -35,8 +35,8 @@ const GameReplay = () => {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [statsRevealed, setStatsRevealed] = useState(false);
-  
-  // Ref for the element that triggers auto-reveal when scrolled into view
+
+  // Trigger auto-reveal once the reader scrolls past the last highlight.
   const statsRevealTriggerRef = useRef<HTMLDivElement | null>(null);
 
   const gameAdapter = useMemo(() => getGameAdapter(), []);
@@ -88,7 +88,7 @@ const GameReplay = () => {
     };
   }, [gameAdapter, gameId, postAdapter, retryCount]);
 
-  // Auto-reveal stats when user scrolls past all highlights
+  // Auto-reveal stats only after the timeline is finished to avoid spoilers.
   useEffect(() => {
     if (statsRevealed || !statsRevealTriggerRef.current) return;
 
@@ -100,7 +100,7 @@ const GameReplay = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(statsRevealTriggerRef.current);
@@ -183,7 +183,7 @@ const GameReplay = () => {
         )}
       </section>
       <TimelineDivider />
-      {/* This invisible element triggers auto-reveal when scrolled into view */}
+      {/* This invisible marker triggers the spoiler-safe reveal once reached. */}
       <div ref={statsRevealTriggerRef} aria-hidden="true" />
       <FinalStats
         revealed={statsRevealed}
@@ -198,5 +198,3 @@ const GameReplay = () => {
     </PageLayout>
   );
 };
-
-export default GameReplay;

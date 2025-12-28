@@ -24,14 +24,14 @@ This document describes how Scroll Down Sports renders official team X posts as 
 
 Table: `game_social_posts`
 
-| Field      | Type      | Notes                                    |
-| ---------- | --------- | ---------------------------------------- |
-| id         | UUID      | Primary key                              |
-| game_id    | FK        | References games table                   |
-| team_id    | VARCHAR   | Team abbreviation (e.g., "GSW")          |
-| post_url   | TEXT      | Full X URL                               |
-| posted_at  | TIMESTAMP | When the post was made                   |
-| has_video  | BOOLEAN   | Optional flag for video content          |
+| Field     | Type      | Notes                           |
+| --------- | --------- | ------------------------------- |
+| id        | UUID      | Primary key                     |
+| game_id   | FK        | References games table          |
+| team_id   | VARCHAR   | Team abbreviation (e.g., "GSW") |
+| post_url  | TEXT      | Full X URL                      |
+| posted_at | TIMESTAMP | When the post was made          |
+| has_video | BOOLEAN   | Optional flag for video content |
 
 **Not stored in frontend:** captions, media URLs, engagement metrics. The backend owns collection and spoiler filtering.
 
@@ -45,6 +45,7 @@ window_end   = game_start_time + 3 hours
 ```
 
 This window:
+
 - Captures pre-game hype and warmups
 - Captures in-game highlights
 - Avoids most post-game "FINAL" posts
@@ -66,6 +67,7 @@ Uses X's official embed widget:
 ```
 
 The widget script (`platform.twitter.com/widgets.js`) handles:
+
 - Video playback
 - Media rendering
 - Responsive sizing
@@ -90,12 +92,14 @@ The frontend expects these endpoints:
 ### GET /api/social/posts
 
 Query params:
+
 - `game_id` - Filter by game
 - `team_id` - Filter by team
 - `start_date` - ISO date string
 - `end_date` - ISO date string
 
 Response:
+
 ```json
 {
   "posts": [
@@ -154,4 +158,3 @@ This approach is compliant because:
 - ✅ Not modifying tweet content
 
 The masking is purely presentation control, not content modification.
-

@@ -9,11 +9,11 @@ Scroll Down Sports is a small single-page application built with Vite and React.
 
 ## Routes and pages
 
-| Page | File | Notes |
-| --- | --- | --- |
-| Date picker | `src/pages/DatePicker.tsx` | Captures `start`/`end` date filters and redirects to the games list. |
-| Game list | `src/pages/GameList.tsx` | Loads game summaries via `MockGameAdapter` and displays filtered results. |
-| Game replay | `src/pages/GameReplay.tsx` | Shows timeline posts, spoiler controls, and final stats. |
+| Page        | File                       | Notes                                                                     |
+| ----------- | -------------------------- | ------------------------------------------------------------------------- |
+| Date picker | `src/pages/DatePicker.tsx` | Captures `start`/`end` date filters and redirects to the games list.      |
+| Game list   | `src/pages/GameList.tsx`   | Loads game summaries via `MockGameAdapter` and displays filtered results. |
+| Game replay | `src/pages/GameReplay.tsx` | Shows timeline posts, spoiler controls, and final stats.                  |
 
 ## Core UI components
 

@@ -7,7 +7,7 @@ services:
         VITE_SPORTS_API_URL: http://localhost:8000
     container_name: ${PROJECT_NAME:-scroll-down-sports-ui}
     ports:
-      - "5173:5173"
+      - '5173:5173'
     volumes:
       # Hot reload: mount source directories
       - ./src:/app/src
@@ -17,4 +17,4 @@ services:
       - ./.env:/app/.env:ro
     extra_hosts:
       # Allow container to reach host machine services
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'

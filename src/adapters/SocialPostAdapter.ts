@@ -16,6 +16,21 @@ export interface GameSocialPost {
   hasVideo?: boolean;
 }
 
+type ApiPostResponse = {
+  posts?: ApiSocialPost[];
+};
+
+type ApiSocialPost = {
+  id?: string | number;
+  game_id?: string | number;
+  team_id?: string;
+  team?: string;
+  post_url?: string;
+  tweet_url?: string;
+  tweet_id?: string | number;
+  posted_at?: string;
+  has_video?: boolean;
+};
 export interface SocialPostAdapter {
   getPostsForGame(gameId: string): Promise<TimelinePost[]>;
 }
@@ -36,9 +51,11 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
 
     try {
       // Use the dedicated game endpoint for cleaner API
-      const data = await this.fetchJson(`${API_BASE}/api/social/posts/game/${gameId}`);
-      
-      // Posts are already sorted by posted_at ascending from the API
+      const data = await this.fetchJson<ApiPostResponse>(
+        `${API_BASE}/api/social/posts/game/${gameId}`,
+      );
+
+      // Posts are already sorted by posted_at ascending from the API.
       return (data.posts || []).map(this.mapPost);
     } catch (error) {
       if (error instanceof ApiConnectionError) {
@@ -49,27 +66,25 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
     }
   }
 
-  private async fetchJson(url: string): Promise<any> {
+  private async fetchJson<T>(url: string): Promise<T> {
     let response: Response;
 
     try {
       response = await fetch(url, {
         headers: { 'Content-Type': 'application/json' },
       });
-    } catch (error) {
-      throw new ApiConnectionError(
-        'Unable to connect to social posts API. Is the server running?'
-      );
+    } catch {
+      throw new ApiConnectionError('Unable to connect to social posts API. Is the server running?');
     }
 
     if (!response.ok) {
       throw new ApiConnectionError(`API error: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return (await response.json()) as T;
   }
 
-  private mapPost(post: any): TimelinePost {
+  private mapPost(post: ApiSocialPost): TimelinePost {
     const postUrl = String(post.post_url || post.tweet_url || '');
     const idCandidate = String(post.tweet_id || post.id || '');
     return {

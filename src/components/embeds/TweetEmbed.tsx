@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import '../styles/tweetMask.css';
+import '../../styles/tweetMask.css';
 
 type TweetVariant = 'standard' | 'highlight';
 
@@ -13,6 +13,7 @@ const EMBED_TIMEOUT_MS = 6000;
 
 let twitterScriptPromise: Promise<void> | null = null;
 
+// Load the X/Twitter widgets script once so all embeds share it.
 const loadTwitterScript = () => {
   if (twitterScriptPromise) {
     return twitterScriptPromise;
@@ -39,7 +40,7 @@ const loadTwitterScript = () => {
   return twitterScriptPromise;
 };
 
-const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedProps) => {
+export const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedProps) => {
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExpandable, setIsExpandable] = useState(false);
@@ -82,7 +83,7 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
         if (!isActive || !containerRef.current) {
           return undefined;
         }
-        // @ts-expect-error - twitter widgets is a global
+        // @ts-expect-error - Twitter widgets are injected globally at runtime.
         const twttrEvents = window.twttr?.events;
         if (twttrEvents?.bind && !hasBoundRenderedEvent.current) {
           hasBoundRenderedEvent.current = true;
@@ -104,7 +105,7 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
             });
           });
         }
-        // @ts-expect-error - twitter widgets is a global
+        // @ts-expect-error - Twitter widgets are injected globally at runtime.
         const createTweet = window.twttr?.widgets?.createTweet;
         if (!createTweet) {
           throw new Error('Twitter widgets unavailable');
@@ -166,6 +167,7 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
           if (!isActive || !wrapperRef.current) {
             return;
           }
+          // Short embeds get locked to teaser height, long embeds can expand.
           if (!baseShouldLimit || hasVideoRef.current) {
             setIsExpandable(false);
             return;
@@ -247,5 +249,3 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
     </div>
   );
 };
-
-export default TweetEmbed;

@@ -1,4 +1,4 @@
-const TimelineDivider = () => {
+export const TimelineDivider = () => {
   return (
     <div className="py-10 text-center text-xs uppercase tracking-[0.3em] text-gray-400">
       <div className="mx-auto mb-3 h-px w-4/5 bg-gray-100"></div>
@@ -7,5 +7,3 @@ const TimelineDivider = () => {
     </div>
   );
 };
-
-export default TimelineDivider;

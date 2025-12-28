@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const DatePicker = () => {
+const normalizeDateParam = (value: string | null) => {
+  if (!value) {
+    return null;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return value;
+};
+
+export const DatePicker = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const startParam = searchParams.get('start');
@@ -47,8 +58,8 @@ const DatePicker = () => {
             Experience finished games spoiler-free
           </h1>
           <p className="max-w-2xl text-base text-gray-600 sm:text-lg">
-            Pick a date range to browse completed matchups with no scores shown. Read the game story like an article, then
-            reveal the final when you&apos;re ready.
+            Pick a date range to browse completed matchups with no scores shown. Read the game story
+            like an article, then reveal the final when you&apos;re ready.
           </p>
         </div>
         {parsedParams.hasInvalid ? (
@@ -88,17 +99,4 @@ const DatePicker = () => {
       </div>
     </main>
   );
-};
-
-export default DatePicker;
-
-const normalizeDateParam = (value: string | null) => {
-  if (!value) {
-    return null;
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-  return value;
 };

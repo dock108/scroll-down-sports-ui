@@ -1,5 +1,21 @@
 import { GameAdapter, GameSummary, GameDetails } from './GameAdapter';
 
+type ApiGameSummary = {
+  id: string | number;
+  game_date?: string;
+  home_team?: string;
+  away_team?: string;
+};
+
+type ApiGameDetails = {
+  game: ApiGameSummary & {
+    home_score?: number;
+    away_score?: number;
+  };
+  team_stats?: GameDetails['teamStats'];
+  player_stats?: GameDetails['playerStats'];
+};
+
 export class ApiConnectionError extends Error {
   constructor(message: string) {
     super(message);
@@ -21,36 +37,36 @@ export class SportsApiAdapter implements GameAdapter {
     }
     params.append('limit', '100');
 
-    const data = await this.fetchJson(`${API_BASE}/api/admin/sports/games?${params}`);
+    const data = await this.fetchJson<{ games: ApiGameSummary[] }>(
+      `${API_BASE}/api/admin/sports/games?${params}`,
+    );
     return data.games.map(this.mapGameSummary);
   }
 
   async getGameById(id: string): Promise<GameDetails | null> {
-    const data = await this.fetchJson(`${API_BASE}/api/admin/sports/games/${id}`);
+    const data = await this.fetchJson<ApiGameDetails>(`${API_BASE}/api/admin/sports/games/${id}`);
     return this.mapGameDetails(data);
   }
 
-  private async fetchJson(url: string): Promise<any> {
+  private async fetchJson<T>(url: string): Promise<T> {
     let response: Response;
 
     try {
       response = await fetch(url, {
         headers: { 'Content-Type': 'application/json' },
       });
-    } catch (error) {
-      throw new ApiConnectionError(
-        'Unable to connect to sports data API. Is the server running?'
-      );
+    } catch {
+      throw new ApiConnectionError('Unable to connect to sports data API. Is the server running?');
     }
 
     if (!response.ok) {
       throw new ApiConnectionError(`API error: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    return (await response.json()) as T;
   }
 
-  private mapGameSummary(game: any): GameSummary {
+  private mapGameSummary(game: ApiGameSummary): GameSummary {
     return {
       id: String(game.id),
       date: game.game_date,
@@ -60,7 +76,7 @@ export class SportsApiAdapter implements GameAdapter {
     };
   }
 
-  private mapGameDetails(data: any): GameDetails {
+  private mapGameDetails(data: ApiGameDetails): GameDetails {
     const game = data.game;
     return {
       id: String(game.id),
@@ -75,4 +91,3 @@ export class SportsApiAdapter implements GameAdapter {
     };
   }
 }
-

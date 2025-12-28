@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import DatePicker from './pages/DatePicker';
-import GameList from './pages/GameList';
-import GameReplay from './pages/GameReplay';
+import { DatePicker } from './pages/DatePicker';
+import { GameList } from './pages/GameList';
+import { GameReplay } from './pages/GameReplay';
 
-const App = () => {
+export const App = () => {
   return (
     <div className="min-h-screen">
       <Routes>
@@ -15,5 +15,3 @@ const App = () => {
     </div>
   );
 };
-
-export default App;

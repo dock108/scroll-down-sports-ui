@@ -8,7 +8,13 @@ type PageLayoutProps = {
   headerClassName?: string;
 };
 
-const PageLayout = ({ children, className, contentClassName, header, headerClassName }: PageLayoutProps) => {
+export const PageLayout = ({
+  children,
+  className,
+  contentClassName,
+  header,
+  headerClassName,
+}: PageLayoutProps) => {
   const baseClassName = `mx-auto min-h-screen w-full max-w-[820px] px-6 py-12 sm:px-8 ${className ?? ''}`;
   const baseContentClassName = `space-y-8 ${contentClassName ?? ''}`;
   const baseHeaderClassName = `text-xs uppercase tracking-[0.4em] text-gray-400 ${headerClassName ?? ''}`;
@@ -20,5 +26,3 @@ const PageLayout = ({ children, className, contentClassName, header, headerClass
     </main>
   );
 };
-
-export default PageLayout;

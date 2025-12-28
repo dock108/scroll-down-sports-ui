@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { GameSummary } from '../adapters/GameAdapter';
 import { getGameAdapter, ApiConnectionError } from '../adapters';
-import DataError from '../components/DataError';
-import PageLayout from '../components/PageLayout';
+import { DataError } from '../components/feedback/DataError';
+import { PageLayout } from '../components/layout/PageLayout';
 
 const getDateLabel = (value?: string) => {
   if (!value) {
@@ -31,7 +31,7 @@ const parseQueryDate = (value?: string | null) => {
   return parsed;
 };
 
-const GameList = () => {
+export const GameList = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const start = query.get('start');
@@ -155,5 +155,3 @@ const GameList = () => {
     </PageLayout>
   );
 };
-
-export default GameList;

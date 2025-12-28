@@ -13,4 +13,3 @@ export function getGameAdapter(): GameAdapter {
 export { ApiConnectionError };
 export { getSocialPostAdapter } from './SocialPostAdapter';
 export type { SocialPostAdapter, GameSocialPost } from './SocialPostAdapter';
-

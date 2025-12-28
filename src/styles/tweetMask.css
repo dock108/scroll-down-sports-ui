@@ -14,7 +14,9 @@
   font-size: var(--font-2xs);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   pointer-events: none;
   z-index: 2;
 }
