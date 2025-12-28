@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import PageLayout from '../components/PageLayout';
 
 const DatePicker = () => {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const DatePicker = () => {
           </div>
         </div>
       </div>
-    </main>
+    </PageLayout>
   );
 };
 

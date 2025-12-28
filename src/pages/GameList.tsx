@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GameSummary } from '../adapters/GameAdapter';
 import { getGameAdapter, ApiConnectionError } from '../adapters';
 import DataError from '../components/DataError';
+import PageLayout from '../components/PageLayout';
 
 const getDateLabel = (value?: string) => {
   if (!value) {
@@ -95,14 +96,14 @@ const GameList = () => {
 
   if (error) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <PageLayout contentClassName="space-y-0">
         <DataError message={error} onRetry={handleRetry} />
-      </main>
+      </PageLayout>
     );
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+    <PageLayout>
       <div className="space-y-3">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Games</p>
         <h1 className="text-3xl font-semibold">Choose a game to replay</h1>
@@ -119,7 +120,7 @@ const GameList = () => {
           </p>
         ) : null}
       </div>
-      <div className="mt-8">
+      <div>
         {isLoading ? (
           Array.from({ length: 3 }, (_, index) => (
             <div key={`skeleton-${index}`} className="py-4 border-b border-gray-200">
@@ -151,7 +152,7 @@ const GameList = () => {
           </div>
         )}
       </div>
-    </main>
+    </PageLayout>
   );
 };
 

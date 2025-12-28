@@ -9,7 +9,7 @@ const RevealScoreButton = ({ onReveal }: RevealScoreButtonProps) => {
         type="button"
         onClick={onReveal}
         aria-label="Reveal final score"
-        className="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
+        className="btn-primary btn-primary--lg btn-primary--pill btn-shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
       >
         Reveal Final Score
       </button>
