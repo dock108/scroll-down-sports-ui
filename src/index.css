@@ -10,10 +10,17 @@
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 .tweet-shell {
@@ -22,15 +29,25 @@ body {
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: 1rem;
-  min-height: clamp(240px, 60vw, 420px);
+  padding: clamp(0.75rem, 3vw, 1.25rem);
+  min-height: clamp(220px, 65vw, 420px);
+  width: 100%;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
 }
 
 .tweet-shell blockquote {
   margin: 0;
+  width: 100%;
 }
 
 .tweet-shell iframe {
   width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  display: block;
+}
+
+.tweet-shell .twitter-tweet {
+  width: 100% !important;
+  max-width: 100% !important;
 }

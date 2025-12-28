@@ -8,11 +8,13 @@ interface GameHeaderProps {
 const GameHeader = ({ awayTeam, homeTeam, venue, dateLabel }: GameHeaderProps) => {
   return (
     <header>
-      <h2 className="mt-6 mb-2 text-sm tracking-wide text-gray-500 uppercase">Game Replay</h2>
-      <h1 className="text-3xl font-semibold mb-2">
+      <h2 className="mt-4 mb-2 text-xs uppercase tracking-[0.3em] text-gray-500 sm:mt-6 sm:text-sm">
+        Game Replay
+      </h2>
+      <h1 className="mb-2 text-2xl font-semibold leading-tight sm:text-3xl">
         {awayTeam} at {homeTeam}
       </h1>
-      <p className="text-gray-600">
+      <p className="text-sm text-gray-600 sm:text-base">
         {dateLabel} — {venue}
       </p>
       <hr className="my-6 border-gray-200" />

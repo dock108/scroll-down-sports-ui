@@ -39,11 +39,11 @@ const DatePicker = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-5 py-12 sm:px-8">
       <div className="space-y-6">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
-        <h1 className="text-4xl font-semibold">Pick your spoiler-safe date range</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">Pick your spoiler-safe date range</h1>
+        <p className="text-sm text-gray-600 sm:text-base">
           Browse finished games without scores. Highlights scroll like an article. Reveal the final score only when you say so.
         </p>
         {parsedParams.hasInvalid ? (
@@ -51,7 +51,7 @@ const DatePicker = () => {
             Invalid dates detected — defaults loaded.
           </p>
         ) : null}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm sm:p-8">
           <label className="text-xs uppercase tracking-[0.3em] text-gray-500">Date range</label>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -60,7 +60,7 @@ const DatePicker = () => {
                 type="date"
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="min-h-[48px] w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div className="space-y-2">
@@ -69,14 +69,14 @@ const DatePicker = () => {
                 type="date"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="min-h-[48px] w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
             </div>
           </div>
           <button
             type="button"
             onClick={handleSubmit}
-            className="mt-5 inline-flex items-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
+            className="mt-6 inline-flex min-h-[48px] items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-blue-500"
           >
             Load games
           </button>

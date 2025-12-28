@@ -95,23 +95,23 @@ const GameList = () => {
 
   if (error) {
     return (
-      <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+      <main className="mx-auto min-h-screen max-w-3xl px-5 py-12 sm:px-8">
         <DataError message={error} onRetry={handleRetry} />
       </main>
     );
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-6 py-10">
+    <main className="mx-auto min-h-screen max-w-3xl px-5 py-12 sm:px-8">
       <div className="space-y-3">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Games</p>
-        <h1 className="text-3xl font-semibold">Choose a game to replay</h1>
+        <h1 className="text-2xl font-semibold leading-tight sm:text-3xl">Choose a game to replay</h1>
         {start || end ? (
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600 sm:text-base">
             Showing games {start ? `from ${start}` : ''} {end ? `to ${end}` : ''}
           </p>
         ) : (
-          <p className="text-gray-600">Select a date range to load games.</p>
+          <p className="text-sm text-gray-600 sm:text-base">Select a date range to load games.</p>
         )}
         {hasInvalidParams ? (
           <p className="text-sm text-amber-700">
@@ -135,9 +135,9 @@ const GameList = () => {
             <Link
               key={game.id}
               to={`/game/${game.id}`}
-              className="block w-full text-left py-4 border-b border-gray-200 transition hover:bg-gray-50"
+              className="block w-full rounded-2xl border-b border-gray-200 px-4 py-5 text-left transition hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
             >
-              <div className="font-medium">
+              <div className="text-base font-medium">
                 {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
               </div>
               <div className="text-sm text-gray-600">

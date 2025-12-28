@@ -190,7 +190,7 @@ const FinalStats = ({
     <div
       className={`overflow-hidden rounded-2xl bg-white transition-all duration-500 ${
         revealed
-          ? 'max-h-none translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
+          ? 'max-h-none translate-y-0 border border-gray-200 p-7 opacity-100 shadow-sm sm:p-8'
           : 'max-h-0 translate-y-4 border border-transparent p-0 opacity-0'
       }`}
       aria-hidden={!revealed}
@@ -250,17 +250,17 @@ const FinalStats = ({
       )}
 
       {/* 3. FINAL SCORE */}
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 sm:px-7">
         <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
         <div className="flex items-center justify-between py-2 border-b border-gray-200">
-          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-lg font-semibold text-gray-800 sm:text-xl">{awayTeam}</div>
+          <div className="text-3xl font-bold text-gray-900 sm:text-4xl">
             {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
           </div>
         </div>
         <div className="flex items-center justify-between py-2">
-          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-lg font-semibold text-gray-800 sm:text-xl">{homeTeam}</div>
+          <div className="text-3xl font-bold text-gray-900 sm:text-4xl">
             {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
           </div>
         </div>
@@ -268,8 +268,8 @@ const FinalStats = ({
 
       {/* Attendance */}
       {attendance > 0 && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <div className="text-2xl font-semibold text-gray-900">{attendance.toLocaleString()}</div>
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5 text-center">
+          <div className="text-xl font-semibold text-gray-900 sm:text-2xl">{attendance.toLocaleString()}</div>
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
         </div>
       )}
