@@ -54,35 +54,34 @@ const DatePicker = () => {
           <p className="text-sm font-medium text-amber-700">
             Invalid dates detected — defaults loaded.
           </p>
+        </div>
+        {parsedParams.hasInvalid ? (
+          <p className="text-sm font-medium text-amber-600">Invalid dates detected — defaults loaded.</p>
         ) : null}
-        <div className="space-y-6">
-          <div>
-            <p className="text-sm font-semibold text-gray-900">Choose your dates</p>
-            <p className="text-sm text-gray-500">We&apos;ll show games that finished inside this window.</p>
-          </div>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <label className="flex flex-1 flex-col gap-2 text-xs uppercase tracking-[0.3em] text-gray-500">
-              Start date
+        <div className="space-y-4">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end">
+            <div className="flex-1 space-y-2">
+              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">Start date</span>
               <input
                 type="date"
                 value={startDate}
                 onChange={(event) => setStartDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
-            </label>
-            <label className="flex flex-1 flex-col gap-2 text-xs uppercase tracking-[0.3em] text-gray-500">
-              End date
+            </div>
+            <div className="flex-1 space-y-2">
+              <span className="text-xs uppercase tracking-[0.3em] text-gray-500">End date</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
               />
-            </label>
+            </div>
             <button
               type="button"
               onClick={handleSubmit}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 sm:mb-1"
+              className="inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 sm:w-auto"
             >
               Browse games
             </button>
