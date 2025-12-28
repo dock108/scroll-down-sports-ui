@@ -47,10 +47,11 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
   const embedTimeout = useRef<number | null>(null);
   const hasVideoRef = useRef(false);
   const videoObserver = useRef<MutationObserver | null>(null);
+  const hasBoundRenderedEvent = useRef(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const isHighlight = variant === 'highlight';
-  const baseShouldLimit = useMemo(() => limitHeight ?? !isHighlight, [limitHeight, isHighlight]);
+  const baseShouldLimit = useMemo(() => limitHeight ?? false, [limitHeight]);
   const shouldLimit = baseShouldLimit && !hasVideo;
   const tweetUrl = tweetId ? `https://twitter.com/i/web/status/${tweetId}` : '';
 
@@ -80,6 +81,28 @@ const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedPr
       .then(() => {
         if (!isActive || !containerRef.current) {
           return undefined;
+        }
+        // @ts-expect-error - twitter widgets is a global
+        const twttrEvents = window.twttr?.events;
+        if (twttrEvents?.bind && !hasBoundRenderedEvent.current) {
+          hasBoundRenderedEvent.current = true;
+          twttrEvents.bind('rendered', (event: { target?: HTMLElement }) => {
+            const container = containerRef.current;
+            if (!container) {
+              return;
+            }
+            if (event?.target && !container.contains(event.target)) {
+              return;
+            }
+            window.requestAnimationFrame(() => {
+              if (containerRef.current) {
+                containerRef.current.style.height = 'auto';
+              }
+              if (wrapperRef.current) {
+                wrapperRef.current.style.height = 'auto';
+              }
+            });
+          });
         }
         // @ts-expect-error - twitter widgets is a global
         const createTweet = window.twttr?.widgets?.createTweet;

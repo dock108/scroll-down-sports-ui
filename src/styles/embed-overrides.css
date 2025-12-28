@@ -1,0 +1,19 @@
+/* parent container for embeds */
+.tweet-wrapper,
+.tweet-wrapper * {
+  max-height: unset !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.tweet-wrapper {
+  flex: 0 1 auto;
+  align-self: stretch;
+}
+
+/* iframe sizing */
+.tweet-wrapper iframe {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}

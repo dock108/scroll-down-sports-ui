@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
+@import "./styles/embed-overrides.css";
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -16,28 +17,7 @@ body {
   max-width: 680px;
   width: 100%;
   margin: 0 auto;
-}
-
-.tweet-wrapper iframe {
-  width: 100% !important;
-  height: auto !important;
-}
-
-.tweet-wrapper.limited {
   position: relative;
-  max-height: 420px;
-  overflow: hidden;
-}
-
-.tweet-wrapper.limited::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 70px;
-  background: linear-gradient(transparent, var(--color-surface));
-  pointer-events: none;
-  z-index: 1;
 }
 
 .tweet-expand {
