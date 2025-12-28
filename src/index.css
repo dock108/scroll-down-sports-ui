@@ -13,30 +13,18 @@ body {
 }
 
 .tweet-wrapper {
-  position: relative;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  padding: var(--space-5);
-  min-height: clamp(240px, 60vw, 420px);
-  box-shadow: var(--shadow-lg);
+  max-width: 680px;
   width: 100%;
-  max-width: 640px;
   margin: 0 auto;
-}
-
-.tweet-wrapper.is-highlight {
-  max-width: 700px;
 }
 
 .tweet-wrapper iframe {
   width: 100% !important;
-  max-width: 100% !important;
-  border-radius: 12px;
+  height: auto !important;
 }
 
 .tweet-wrapper.limited {
+  position: relative;
   max-height: 420px;
   overflow: hidden;
 }
@@ -77,18 +65,8 @@ body {
   background: var(--color-surface-strong);
 }
 
-.video-frame {
-  aspect-ratio: 16 / 9;
-  width: 100%;
-  max-width: 700px;
-  overflow: hidden;
-  margin: 0 auto;
-  border-radius: 14px;
-}
-
-.video-frame iframe {
-  width: 100% !important;
-  height: 100% !important;
+.tweet-wrapper.has-video {
+  overflow: visible;
 }
 
 .btn-primary {

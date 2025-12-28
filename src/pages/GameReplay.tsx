@@ -173,7 +173,7 @@ const GameReplay = () => {
             <TweetEmbed
               key={post.id}
               tweetId={post.tweetId}
-              variant={post.hasVideo ? 'highlight' : 'default'}
+              variant={post.hasVideo ? 'highlight' : 'standard'}
             />
           ))
         ) : (

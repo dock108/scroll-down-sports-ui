@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/tweetMask.css';
 
-type TweetVariant = 'default' | 'highlight';
+type TweetVariant = 'standard' | 'highlight';
 
 interface TweetEmbedProps {
   tweetId: string;
@@ -39,15 +39,19 @@ const loadTwitterScript = () => {
   return twitterScriptPromise;
 };
 
-const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedProps) => {
+const TweetEmbed = ({ tweetId, variant = 'standard', limitHeight }: TweetEmbedProps) => {
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExpandable, setIsExpandable] = useState(false);
+  const [hasVideo, setHasVideo] = useState(false);
   const embedTimeout = useRef<number | null>(null);
+  const hasVideoRef = useRef(false);
+  const videoObserver = useRef<MutationObserver | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const isHighlight = variant === 'highlight';
-  const shouldLimit = useMemo(() => limitHeight ?? !isHighlight, [limitHeight, isHighlight]);
+  const baseShouldLimit = useMemo(() => limitHeight ?? !isHighlight, [limitHeight, isHighlight]);
+  const shouldLimit = baseShouldLimit && !hasVideo;
   const tweetUrl = tweetId ? `https://twitter.com/i/web/status/${tweetId}` : '';
 
   useEffect(() => {
@@ -56,6 +60,8 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
     setEmbedStatus('loading');
     setIsExpanded(false);
     setIsExpandable(false);
+    setHasVideo(false);
+    hasVideoRef.current = false;
 
     if (!tweetId) {
       setEmbedStatus('failed');
@@ -64,6 +70,10 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
 
     if (containerRef.current) {
       containerRef.current.innerHTML = '';
+    }
+    if (videoObserver.current) {
+      videoObserver.current.disconnect();
+      videoObserver.current = null;
     }
 
     loadTwitterScript()
@@ -96,22 +106,45 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
           width: 550,
         });
       })
-      .then(() => {
+      .then((el) => {
         if (!isActive) {
           return;
         }
-        setEmbedStatus('ready');
         if (embedTimeout.current) {
           window.clearTimeout(embedTimeout.current);
           embedTimeout.current = null;
         }
 
-        if (!shouldLimit) {
-          return;
+        const embedElement = el ?? containerRef.current;
+        if (embedElement) {
+          const checkForVideo = () => {
+            const hasVideoElement = Boolean(embedElement.querySelector('video'));
+            if (hasVideoElement) {
+              hasVideoRef.current = true;
+              setHasVideo(true);
+            }
+            return hasVideoElement;
+          };
+
+          if (!checkForVideo() && typeof MutationObserver !== 'undefined') {
+            const observer = new MutationObserver(() => {
+              if (checkForVideo()) {
+                observer.disconnect();
+                videoObserver.current = null;
+              }
+            });
+            observer.observe(embedElement, { childList: true, subtree: true });
+            videoObserver.current = observer;
+          }
         }
 
+        setEmbedStatus('ready');
         window.requestAnimationFrame(() => {
           if (!isActive || !wrapperRef.current) {
+            return;
+          }
+          if (!baseShouldLimit || hasVideoRef.current) {
+            setIsExpandable(false);
             return;
           }
           const wrapper = wrapperRef.current;
@@ -131,13 +164,18 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
         window.clearTimeout(embedTimeout.current);
         embedTimeout.current = null;
       }
+      if (videoObserver.current) {
+        videoObserver.current.disconnect();
+        videoObserver.current = null;
+      }
     };
-  }, [tweetId, shouldLimit]);
+  }, [tweetId, baseShouldLimit]);
 
   const wrapperClasses = [
     'tweet-wrapper',
     isHighlight ? 'is-highlight' : '',
-    shouldLimit && !isExpanded ? 'limited' : '',
+    hasVideo ? 'has-video' : '',
+    shouldLimit && embedStatus === 'ready' && !isExpanded ? 'limited' : '',
     'focus-visible:outline',
     'focus-visible:outline-2',
     'focus-visible:outline-offset-2',
@@ -153,7 +191,7 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
         <span>Official Team Post</span>
       </div>
       <div ref={wrapperRef} className={wrapperClasses}>
-        <div ref={containerRef} className={isHighlight ? 'video-frame' : undefined} />
+        <div ref={containerRef} />
         {embedStatus === 'loading' ? (
           <div className="tweet-skeleton" aria-hidden="true">
             <div className="tweet-skeleton__bar"></div>
@@ -173,7 +211,7 @@ const TweetEmbed = ({ tweetId, variant = 'default', limitHeight }: TweetEmbedPro
             </p>
           </div>
         ) : null}
-        {shouldLimit && isExpandable ? (
+        {shouldLimit && embedStatus === 'ready' && isExpandable ? (
           <button
             type="button"
             className="tweet-expand"
