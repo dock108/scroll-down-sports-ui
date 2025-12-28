@@ -43,6 +43,7 @@ export interface TimelinePost {
   gameId: string;
   team: string;
   postUrl: string;
+  tweetId: string;
   postedAt: string;
   hasVideo?: boolean;
 }
@@ -83,13 +84,42 @@ export class MockPostAdapter implements PostAdapter {
   private normalizePost(post: FlexibleRecord, index: number): TimelinePost {
     const postUrl = getStringValue(post, ['post_url', 'tweet_url', 'tweetUrl', 'url']) ?? '';
     const fallbackId = postUrl || `post-${index}`;
+    const idCandidate =
+      getStringValue(post, ['tweet_id', 'tweetId', 'id', 'post_id']) ?? '';
+    const parsedTweetId = extractTweetId(postUrl);
+    const tweetId = parsedTweetId || (isTweetId(idCandidate) ? idCandidate : '');
     return {
       id: getStringValue(post, ['id', 'post_id', 'tweet_id', 'tweetId']) ?? fallbackId,
       gameId: getStringValue(post, ['game_id', 'gameId', 'game']) ?? '',
       postUrl,
+      tweetId,
       postedAt: getStringValue(post, ['posted_at', 'postedAt', 'timestamp']) ?? '',
       hasVideo: getBooleanValue(post, ['has_video', 'hasVideo', 'video']),
       team: getStringValue(post, ['team', 'team_id', 'teamId']) ?? '',
     };
   }
 }
+
+const isTweetId = (value: string) => /^\d+$/.test(value.trim());
+
+const extractTweetId = (url: string) => {
+  if (!url) {
+    return '';
+  }
+  let normalized = url.trim();
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = `https://${normalized}`;
+  }
+  try {
+    const parsed = new URL(normalized);
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    const statusIndex = segments.findIndex((segment) => segment === 'status');
+    if (statusIndex >= 0 && segments[statusIndex + 1]) {
+      const idCandidate = segments[statusIndex + 1].split('?')[0];
+      return isTweetId(idCandidate) ? idCandidate : '';
+    }
+  } catch {
+    return '';
+  }
+  return '';
+};
