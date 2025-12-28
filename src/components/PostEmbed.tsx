@@ -65,9 +65,19 @@ const normalizePostUrl = (url: string) => {
 const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
   const normalizedUrl = useMemo(() => normalizePostUrl(postUrl), [postUrl]);
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
-  const [isRevealed, setIsRevealed] = useState(spoilersAllowed);
+  const [locallyRevealed, setLocallyRevealed] = useState(false);
   const embedTimeout = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const prevUrlRef = useRef(normalizedUrl);
+
+  // Reset local reveal state when URL changes (new post)
+  if (prevUrlRef.current !== normalizedUrl) {
+    prevUrlRef.current = normalizedUrl;
+    setLocallyRevealed(false);
+  }
+
+  // Derive isRevealed directly to avoid one-frame delay
+  const isRevealed = spoilersAllowed || locallyRevealed;
 
   useEffect(() => {
     let isActive = true;
@@ -115,10 +125,6 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
     };
   }, [isRevealed, normalizedUrl]);
 
-  useEffect(() => {
-    setIsRevealed(spoilersAllowed);
-  }, [normalizedUrl, spoilersAllowed]);
-
   return (
     <div className="space-y-1 mb-2">
       <div className="flex items-center justify-between text-[0.6rem] uppercase tracking-[0.2em] text-gray-400">
@@ -135,7 +141,7 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
           </p>
           <button
             type="button"
-            onClick={() => setIsRevealed(true)}
+            onClick={() => setLocallyRevealed(true)}
             className="rounded-full bg-gray-900 px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
           >
             Reveal Highlight
