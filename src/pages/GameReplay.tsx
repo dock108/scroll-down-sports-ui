@@ -222,18 +222,17 @@ const GameReplay = () => {
         venue={game.venue ?? 'Venue TBD'}
         dateLabel={dateLabel}
       />
-      <section className="space-y-10">
+      <section className="space-y-8">
         {timelinePosts.length ? (
           timelinePosts.map((post) => (
             <PostEmbed
               key={post.id}
               postUrl={post.postUrl}
               hasVideo={post.hasVideo ?? false}
-              spoilersAllowed={spoilersAllowed}
             />
           ))
         ) : (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-gray-500">
+          <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-gray-500">
             This game has no highlight posts available yet.
           </div>
         )}
@@ -241,9 +240,11 @@ const GameReplay = () => {
       <TimelineDivider />
       {!spoilersAllowed ? (
         <section className="space-y-6">
-          <div className="space-y-1">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
-            <p className="text-sm text-gray-600">Reveal when you're ready.</p>
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold text-gray-900">Final stats</h2>
+            <p className="text-sm text-gray-600">
+              Hidden until you reach the end. Reveal when you&apos;re ready.
+            </p>
           </div>
           <StatsTeaser />
           <RevealScoreButton

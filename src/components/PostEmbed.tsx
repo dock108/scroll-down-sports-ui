@@ -4,7 +4,6 @@ import '../styles/tweetMask.css';
 interface PostEmbedProps {
   postUrl: string;
   hasVideo: boolean;
-  spoilersAllowed: boolean;
 }
 
 const EMBED_TIMEOUT_MS = 5000;
@@ -62,7 +61,7 @@ const normalizePostUrl = (url: string) => {
   }
 };
 
-const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
+const PostEmbed = ({ postUrl, hasVideo }: PostEmbedProps) => {
   const normalizedUrl = useMemo(() => normalizePostUrl(postUrl), [postUrl]);
   const [embedStatus, setEmbedStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const embedTimeout = useRef<number | null>(null);
@@ -108,11 +107,7 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
   }, [normalizedUrl]);
 
   return (
-    <div className="space-y-1 mb-2">
-      <div className="flex items-center justify-between text-[0.6rem] uppercase tracking-[0.2em] text-gray-400">
-        <span>{hasVideo ? 'Video Highlight' : 'Moment'}</span>
-        <span>Official Team Post</span>
-      </div>
+    <div className="mb-4">
       <div
         ref={containerRef}
         className="tweet-shell focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-200"
@@ -121,10 +116,8 @@ const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
           <a href={normalizedUrl}></a>
         </blockquote>
         {embedStatus === 'loading' ? (
-          <div className="tweet-skeleton" aria-hidden="true">
-            <div className="tweet-skeleton__bar"></div>
-            <div className="tweet-skeleton__bar"></div>
-            <div className="tweet-skeleton__bar"></div>
+          <div className="tweet-skeleton" role="status" aria-live="polite">
+            Loading {hasVideo ? 'highlight' : 'moment'}…
           </div>
         ) : null}
         {embedStatus === 'failed' ? (

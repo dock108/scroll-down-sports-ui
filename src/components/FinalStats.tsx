@@ -44,7 +44,7 @@ const getMinutes = (raw: Record<string, any>): number => {
       if (!isNaN(parsed)) return parsed;
     }
   }
-  return 0;
+        return 0;
 };
 
 // Format stat value - round minutes to 2 decimal places
@@ -250,7 +250,7 @@ const FinalStats = ({
       )}
 
       {/* 3. FINAL SCORE */}
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
         <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
         <div className="flex items-center justify-between py-2 border-b border-gray-200">
           <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
@@ -271,7 +271,7 @@ const FinalStats = ({
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 text-center">
           <div className="text-2xl font-semibold text-gray-900">{attendance.toLocaleString()}</div>
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
-        </div>
+            </div>
       )}
     </div>
   );
