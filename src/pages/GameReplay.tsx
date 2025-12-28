@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import GameHeader from '../components/GameHeader';
-import PostEmbed from '../components/PostEmbed';
+import TweetEmbed from '../components/TweetEmbed';
 import TimelineDivider from '../components/TimelineDivider';
 import FinalStats from '../components/FinalStats';
 import DataError from '../components/DataError';
@@ -130,7 +130,7 @@ const GameReplay = () => {
         </div>
         <div className="mt-10 space-y-6">
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={`timeline-skeleton-${index}`} className="tweet-shell">
+            <div key={`timeline-skeleton-${index}`} className="tweet-wrapper">
               <div className="tweet-skeleton">
                 <div className="tweet-skeleton__bar"></div>
                 <div className="tweet-skeleton__bar"></div>
@@ -170,10 +170,10 @@ const GameReplay = () => {
       <section className="space-y-8">
         {timelinePosts.length ? (
           timelinePosts.map((post) => (
-            <PostEmbed
+            <TweetEmbed
               key={post.id}
-              postUrl={post.postUrl}
-              hasVideo={post.hasVideo ?? false}
+              tweetId={post.tweetId}
+              variant={post.hasVideo ? 'highlight' : 'default'}
             />
           ))
         ) : (

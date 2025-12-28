@@ -70,16 +70,43 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
   }
 
   private mapPost(post: any): TimelinePost {
+    const postUrl = String(post.post_url || post.tweet_url || '');
+    const idCandidate = String(post.tweet_id || post.id || '');
     return {
       id: String(post.id || post.post_url || post.tweet_url || ''),
       gameId: String(post.game_id || ''),
       team: String(post.team_id || post.team || ''),
-      postUrl: String(post.post_url || post.tweet_url || ''),
+      postUrl,
+      tweetId: extractTweetId(postUrl) || (isTweetId(idCandidate) ? idCandidate : ''),
       postedAt: String(post.posted_at || ''),
       hasVideo: Boolean(post.has_video),
     };
   }
 }
+
+const isTweetId = (value: string) => /^\d+$/.test(value.trim());
+
+const extractTweetId = (url: string) => {
+  if (!url) {
+    return '';
+  }
+  let normalized = url.trim();
+  if (!/^https?:\/\//i.test(normalized)) {
+    normalized = `https://${normalized}`;
+  }
+  try {
+    const parsed = new URL(normalized);
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    const statusIndex = segments.findIndex((segment) => segment === 'status');
+    if (statusIndex >= 0 && segments[statusIndex + 1]) {
+      const idCandidate = segments[statusIndex + 1].split('?')[0];
+      return isTweetId(idCandidate) ? idCandidate : '';
+    }
+  } catch {
+    return '';
+  }
+  return '';
+};
 
 /**
  * Factory function to get the appropriate social post adapter
@@ -92,4 +119,3 @@ export function getSocialPostAdapter(): SocialPostAdapter {
   // Fallback to mock adapter for local development
   return new MockPostAdapter();
 }
-
