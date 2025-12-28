@@ -188,13 +188,18 @@ const FinalStats = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-white transition-all duration-700 ease-out ${
-        revealed
-          ? 'max-h-[3000px] translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
-          : 'max-h-0 translate-y-4 border border-transparent p-0 opacity-0'
+      className={`grid transition-all duration-700 ease-out ${
+        revealed ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
       }`}
       aria-hidden={!revealed}
     >
+      <div
+        className={`overflow-hidden rounded-2xl bg-white transition-all duration-700 ease-out ${
+          revealed
+            ? 'translate-y-0 border border-gray-200 p-6 shadow-sm'
+            : 'translate-y-4 border border-transparent p-0'
+        }`}
+      >
       <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">Final Score + Stats</p>
 
       {/* 1. FINAL SCORE */}
@@ -273,6 +278,7 @@ const FinalStats = ({
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gray-500">Attendance</div>
         </div>
       )}
+      </div>
     </div>
   );
 };
