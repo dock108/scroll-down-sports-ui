@@ -39,15 +39,27 @@ const loadTwitterScript = () => {
 
 const normalizePostUrl = (url: string) => {
   if (!url) return '';
+
   let normalized = url.trim();
-  if (normalized.startsWith('x.com')) {
+
+  // Ensure the URL has a scheme so that URL parsing is reliable
+  if (!/^https?:\/\//i.test(normalized)) {
     normalized = `https://${normalized}`;
   }
-  if (!normalized.startsWith('http')) {
-    normalized = `https://${normalized}`;
+
+  try {
+    const urlObj = new URL(normalized);
+
+    // Normalize legacy X URLs to twitter.com based on hostname, not substrings
+    if (urlObj.hostname === 'x.com' || urlObj.hostname === 'www.x.com') {
+      urlObj.hostname = 'twitter.com';
+    }
+
+    return urlObj.toString();
+  } catch {
+    // If the URL is invalid, return an empty string to avoid emitting a bad href
+    return '';
   }
-  normalized = normalized.replace('://x.com/', '://twitter.com/');
-  return normalized;
 };
 
 const PostEmbed = ({ postUrl, hasVideo, spoilersAllowed }: PostEmbedProps) => {
