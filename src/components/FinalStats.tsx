@@ -188,16 +188,33 @@ const FinalStats = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl bg-white transition-all duration-500 ${
+      className={`overflow-hidden rounded-2xl bg-white transition-all duration-700 ease-out ${
         revealed
-          ? 'max-h-none translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
+          ? 'max-h-[3000px] translate-y-0 border border-gray-200 p-6 opacity-100 shadow-sm'
           : 'max-h-0 translate-y-4 border border-transparent p-0 opacity-0'
       }`}
       aria-hidden={!revealed}
     >
       <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">Final Score + Stats</p>
 
-      {/* 1. PLAYER STATS - Box score by team */}
+      {/* 1. FINAL SCORE */}
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5 mb-8">
+        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
+        <div className="flex items-center justify-between py-2 border-b border-gray-200">
+          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
+          </div>
+        </div>
+        <div className="flex items-center justify-between py-2">
+          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
+          <div className="text-4xl font-bold text-gray-900">
+            {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. PLAYER STATS - Box score by team */}
       {(awayPlayers.length > 0 || homePlayers.length > 0) && (
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Box Score</p>
@@ -206,7 +223,7 @@ const FinalStats = ({
         </div>
       )}
 
-      {/* 2. TEAM STATS - Full display for each team (excluding points) */}
+      {/* 3. TEAM STATS - Full display for each team (excluding points) */}
       {(awayTeamStats || homeTeamStats) && (
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-3">Team Stats</p>
@@ -248,23 +265,6 @@ const FinalStats = ({
           </div>
         </div>
       )}
-
-      {/* 3. FINAL SCORE */}
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 px-6 py-5">
-        <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
-        <div className="flex items-center justify-between py-2 border-b border-gray-200">
-          <div className="text-xl font-semibold text-gray-800">{awayTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(awayScore ?? NaN) ? awayScore : '—'}
-          </div>
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <div className="text-xl font-semibold text-gray-800">{homeTeam}</div>
-          <div className="text-4xl font-bold text-gray-900">
-            {Number.isFinite(homeScore ?? NaN) ? homeScore : '—'}
-          </div>
-        </div>
-      </div>
 
       {/* Attendance */}
       {attendance > 0 && (

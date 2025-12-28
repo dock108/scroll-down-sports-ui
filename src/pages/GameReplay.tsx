@@ -239,10 +239,9 @@ const GameReplay = () => {
       </section>
       <TimelineDivider />
       {!spoilersAllowed ? (
-        <section className="space-y-6">
+        <section className="space-y-6 text-center">
           <div className="space-y-1">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Final stats (hidden)</p>
-            <p className="text-sm text-gray-600">Reveal when you're ready.</p>
+            <p className="text-sm font-medium text-gray-700">Final stats are hidden — reveal when ready</p>
           </div>
           <StatsTeaser />
           <RevealScoreButton

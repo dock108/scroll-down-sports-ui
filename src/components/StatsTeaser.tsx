@@ -8,7 +8,7 @@ const StatsTeaser = () => {
         {statBlocks.map((item) => (
           <div
             key={item}
-            className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center text-gray-500 blur-sm"
+            className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center text-gray-500 blur-[1.5px]"
           >
             <div className="text-3xl font-semibold">00</div>
             <div className="mt-1 text-xs uppercase tracking-[0.2em]">Placeholder</div>
