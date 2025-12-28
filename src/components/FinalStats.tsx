@@ -156,13 +156,14 @@ const FinalStats = ({
           <p className="text-sm font-semibold text-gray-800">{teamName}</p>
           <span className="text-xs uppercase tracking-[0.2em] text-gray-400">{label}</span>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <div className="relative overflow-x-auto rounded-xl border border-gray-200">
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-white/90 to-transparent sm:hidden" />
           <table className="w-full text-sm text-gray-800 whitespace-nowrap">
             <thead className="bg-gray-50 text-xs uppercase tracking-[0.15em] text-gray-500">
               <tr>
-                <th className="px-3 py-2 text-left sticky left-0 bg-gray-50">Player</th>
+                <th className="sticky top-0 left-0 bg-gray-50 px-3 py-2 text-left">Player</th>
                 {allPlayerStatKeys.map((key) => (
-                  <th key={key} className="px-2 py-2 text-right">
+                  <th key={key} className="sticky top-0 bg-gray-50 px-2 py-2 text-right tabular-nums">
                     {formatStatLabel(key)}
                   </th>
                 ))}
@@ -170,10 +171,13 @@ const FinalStats = ({
             </thead>
             <tbody>
               {players.map((p, idx) => (
-                <tr key={`${p.player_name}-${idx}`} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-3 py-2 font-medium sticky left-0 bg-white">{p.player_name}</td>
+                <tr
+                  key={`${p.player_name}-${idx}`}
+                  className="border-t border-gray-100 odd:bg-gray-50/60 hover:bg-gray-50/80"
+                >
+                  <td className="sticky left-0 bg-inherit px-3 py-2 font-medium">{p.player_name}</td>
                   {allPlayerStatKeys.map((key) => (
-                    <td key={key} className="px-2 py-2 text-right">
+                    <td key={key} className="px-2 py-2 text-right tabular-nums">
                       {formatStatValue(key, p.raw_stats?.[key])}
                     </td>
                   ))}
