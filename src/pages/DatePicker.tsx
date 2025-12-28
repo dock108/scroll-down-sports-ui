@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import PageLayout from '../components/PageLayout';
 
 const DatePicker = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const DatePicker = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-10">
+    <PageLayout className="flex flex-col justify-center">
       <div className="space-y-6">
         <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
         <h1 className="text-4xl font-semibold">Pick your spoiler-safe date range</h1>
@@ -82,7 +83,7 @@ const DatePicker = () => {
           </button>
         </div>
       </div>
-    </main>
+    </PageLayout>
   );
 };
 
