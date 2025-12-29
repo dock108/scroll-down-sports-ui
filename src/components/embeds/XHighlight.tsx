@@ -102,7 +102,8 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const hasVideo = mediaType === 'video' && Boolean(post.videoUrl);
   const hasImage = mediaType === 'image' && Boolean(post.imageUrl);
   const shouldLoadMedia = isInView && (hasVideo || hasImage);
-  const showFallback = mediaType !== 'none' && (!hasVideo && !hasImage || mediaFailed);
+  const showFallback =
+    mediaType !== 'none' && ((!hasVideo && !hasImage) || mediaFailed);
   const showSkeleton = mediaType !== 'none' && !showFallback && !mediaLoaded;
 
   const captionTextClasses = [
