@@ -3,6 +3,10 @@ import type { TimelinePost } from '../../adapters/PostAdapter';
 
 type MediaType = 'video' | 'image' | 'none';
 
+// Heuristic pattern for spoiler scores, e.g. "102-98" or "120 - 115".
+// Note: This may occasionally match non-score digit ranges, which is acceptable
+// for our spoiler-filter use case. If we need stricter detection in the future,
+// we can refine this to include more contextual cues (team names, sport keywords, etc.).
 const SCORE_PATTERN = /\b\d{2,3}\s*-\s*\d{2,3}\b/;
 const CAPTION_MAX_CHARS = 140;
 
