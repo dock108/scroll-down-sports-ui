@@ -170,7 +170,12 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
             {showFallback ? (
               <div className="x-highlight__fallback">
                 <p>
-                  Clip unavailable —{' '}
+                  {mediaType === 'video'
+                    ? 'Clip unavailable'
+                    : mediaType === 'image'
+                    ? 'Image unavailable'
+                    : 'Media unavailable'}{' '}
+                  —{' '}
                   {post.postUrl ? (
                     <a href={post.postUrl} target="_blank" rel="noopener noreferrer">
                       view post on X
