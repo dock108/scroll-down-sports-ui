@@ -13,11 +13,11 @@ npm run dev
 
 Then open the URL printed by Vite (typically `http://localhost:5173`).
 
-## How Twitter/X embeds are handled
+## How X highlights are handled
 
-- `src/components/embeds/TweetEmbed.tsx` loads the Twitter widgets script once and reuses it for all embeds.
-- The component waits for widgets to render and watches for video content to decide whether to limit the embed height.
-- When the embed cannot load, the UI falls back to a simple “open on X” link.
+- `src/components/embeds/XHighlight.tsx` renders custom highlight cards with native media elements.
+- Media URLs are remote and never re-hosted; captions link back to the original X post.
+- The component reserves layout space with a fixed aspect ratio and skeleton loader.
 
 ## Spoiler-safe philosophy
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { TweetEmbed } from '../components/embeds/TweetEmbed';
+import { XHighlight } from '../components/embeds/XHighlight';
 import { DataError } from '../components/feedback/DataError';
 import { PageLayout } from '../components/layout/PageLayout';
 import { FinalStats } from '../components/scores/FinalStats';
@@ -130,11 +130,11 @@ export const GameReplay = () => {
         </div>
         <div className="mt-10 space-y-6">
           {Array.from({ length: 3 }, (_, index) => (
-            <div key={`timeline-skeleton-${index}`} className="tweet-wrapper">
-              <div className="tweet-skeleton">
-                <div className="tweet-skeleton__bar"></div>
-                <div className="tweet-skeleton__bar"></div>
-                <div className="tweet-skeleton__bar"></div>
+            <div key={`timeline-skeleton-${index}`} className="x-highlight__loading-card">
+              <div className="x-highlight__media-skeleton" aria-hidden="true"></div>
+              <div className="x-highlight__caption-skeleton">
+                <div className="x-highlight__caption-bar"></div>
+                <div className="x-highlight__caption-bar x-highlight__caption-bar--short"></div>
               </div>
             </div>
           ))}
@@ -170,11 +170,7 @@ export const GameReplay = () => {
       <section className="space-y-8">
         {timelinePosts.length ? (
           timelinePosts.map((post) => (
-            <TweetEmbed
-              key={post.id}
-              tweetId={post.tweetId}
-              variant={post.hasVideo ? 'highlight' : 'standard'}
-            />
+            <XHighlight key={post.id} post={post} />
           ))
         ) : (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-6 text-gray-500">
