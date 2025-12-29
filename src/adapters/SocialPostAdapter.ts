@@ -54,6 +54,9 @@ export interface SocialPostAdapter {
  */
 export class SocialPostApiAdapter implements SocialPostAdapter {
   async getPostsForGame(gameId: string): Promise<TimelinePost[]> {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:56',message:'getPostsForGame called',data:{gameId,adapter:'SocialPostApiAdapter'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3-adapter-choice'})}).catch(()=>{});
+    // #endregion
     if (!gameId) {
       console.warn('SocialPostApiAdapter: game id missing.');
       return [];
@@ -65,8 +68,16 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
         `${API_BASE}/api/social/posts/game/${gameId}`,
       );
 
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:70',message:'API raw response',data:{postCount:(data.posts||[]).length,samplePost:(data.posts||[])[0]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1-api-response'})}).catch(()=>{});
+      // #endregion
+
       // Posts are already sorted by posted_at ascending from the API.
-      return (data.posts || []).map(this.mapPost);
+      const mappedPosts = (data.posts || []).map(this.mapPost);
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:75',message:'Mapped posts result',data:{count:mappedPosts.length,sampleMapped:mappedPosts[0]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2-mapping'})}).catch(()=>{});
+      // #endregion
+      return mappedPosts;
     } catch (error) {
       if (error instanceof ApiConnectionError) {
         throw error;

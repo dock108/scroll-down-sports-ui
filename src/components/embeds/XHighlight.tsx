@@ -60,6 +60,9 @@ const XIcon = () => (
 );
 
 export const XHighlight = ({ post }: { post: TimelinePost }) => {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'XHighlight.tsx:62',message:'XHighlight render with post',data:{postId:post.id,hasVideoUrl:!!post.videoUrl,hasImageUrl:!!post.imageUrl,hasTweetText:!!post.tweetText,mediaType:post.mediaType,sourceHandle:post.sourceHandle,videoUrl:post.videoUrl,imageUrl:post.imageUrl,tweetText:post.tweetText},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4-xhighlight-data'})}).catch(()=>{});
+  // #endregion
   const mediaRef = useRef<HTMLDivElement | null>(null);
   const [isInView, setIsInView] = useState(false);
   const [mediaLoaded, setMediaLoaded] = useState(false);
@@ -109,6 +112,10 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const showFallback =
     mediaType !== 'none' && ((!hasVideo && !hasImage) || mediaFailed);
   const showSkeleton = mediaType !== 'none' && !showFallback && !mediaLoaded;
+
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'XHighlight.tsx:112',message:'XHighlight media state',data:{postId:post.id,mediaType,hasVideo,hasImage,shouldLoadMedia,showFallback,showSkeleton,isInView,mediaLoaded,mediaFailed},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4-media-loading'})}).catch(()=>{});
+  // #endregion
 
   const captionTextClasses = [
     'x-highlight__caption-text',
