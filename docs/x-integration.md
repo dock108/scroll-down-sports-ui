@@ -150,7 +150,7 @@ The frontend doesn't change - just swap the data source.
 
 This approach is compliant because:
 
-- ✅ Not downloading or re-hosting media
+- ✅ Not storing or re-hosting media
 - ✅ Linking back to original content
 - ✅ Not displaying engagement metrics
 - ✅ Preserving attribution
