@@ -14,6 +14,11 @@ export interface GameSocialPost {
   postUrl: string;
   postedAt: string;
   hasVideo?: boolean;
+  mediaType?: 'video' | 'image' | 'none';
+  videoUrl?: string;
+  imageUrl?: string;
+  sourceHandle?: string;
+  tweetText?: string;
 }
 
 type ApiPostResponse = {
@@ -30,6 +35,11 @@ type ApiSocialPost = {
   tweet_id?: string | number;
   posted_at?: string;
   has_video?: boolean;
+  media_type?: 'video' | 'image' | 'none';
+  video_url?: string;
+  image_url?: string;
+  source_handle?: string;
+  tweet_text?: string;
 };
 export interface SocialPostAdapter {
   getPostsForGame(gameId: string): Promise<TimelinePost[]>;
@@ -95,6 +105,11 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
       tweetId: extractTweetId(postUrl) || (isTweetId(idCandidate) ? idCandidate : ''),
       postedAt: String(post.posted_at || ''),
       hasVideo: Boolean(post.has_video),
+      mediaType: post.media_type,
+      videoUrl: post.video_url,
+      imageUrl: post.image_url,
+      sourceHandle: post.source_handle,
+      tweetText: post.tweet_text,
     };
   }
 }

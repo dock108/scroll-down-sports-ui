@@ -18,7 +18,7 @@ Scroll Down Sports is a small single-page application built with Vite and React.
 ## Core UI components
 
 - `GameHeader` (`src/components/GameHeader.tsx`): heading section for the selected game.
-- `TweetEmbed` (`src/components/TweetEmbed.tsx`): renders a highlight post with spoiler-safe masking.
+- `XHighlight` (`src/components/embeds/XHighlight.tsx`): renders a highlight card with remote media and caption attribution.
 - `StatsTeaser`, `FinalStats`, `RevealScoreButton`: manage teaser and reveal UI for the final score.
 
 ## Data adapters

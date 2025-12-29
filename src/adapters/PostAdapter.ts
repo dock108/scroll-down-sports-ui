@@ -46,6 +46,11 @@ export interface TimelinePost {
   tweetId: string;
   postedAt: string;
   hasVideo?: boolean;
+  mediaType?: 'video' | 'image' | 'none';
+  videoUrl?: string;
+  imageUrl?: string;
+  sourceHandle?: string;
+  tweetText?: string;
 }
 
 export interface PostAdapter {
@@ -88,6 +93,11 @@ export class MockPostAdapter implements PostAdapter {
     const idCandidate = getStringValue(post, ['tweet_id', 'tweetId', 'id', 'post_id']) ?? '';
     const parsedTweetId = extractTweetId(postUrl);
     const tweetId = parsedTweetId || (isTweetId(idCandidate) ? idCandidate : '');
+    const mediaType = getStringValue(post, ['media_type', 'mediaType']) as
+      | 'video'
+      | 'image'
+      | 'none'
+      | undefined;
     return {
       id: getStringValue(post, ['id', 'post_id', 'tweet_id', 'tweetId']) ?? fallbackId,
       gameId: getStringValue(post, ['game_id', 'gameId', 'game']) ?? '',
@@ -95,6 +105,11 @@ export class MockPostAdapter implements PostAdapter {
       tweetId,
       postedAt: getStringValue(post, ['posted_at', 'postedAt', 'timestamp']) ?? '',
       hasVideo: getBooleanValue(post, ['has_video', 'hasVideo', 'video']),
+      mediaType,
+      videoUrl: getStringValue(post, ['video_url', 'videoUrl']),
+      imageUrl: getStringValue(post, ['image_url', 'imageUrl']),
+      sourceHandle: getStringValue(post, ['source_handle', 'sourceHandle', 'handle']),
+      tweetText: getStringValue(post, ['tweet_text', 'tweetText', 'text']),
       team: getStringValue(post, ['team', 'team_id', 'teamId']) ?? '',
     };
   }

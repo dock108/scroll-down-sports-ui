@@ -1,13 +1,13 @@
 # X Integration
 
-This document describes how Scroll Down Sports renders official team X posts as game highlights. The backend owns data collection; the frontend only embeds posts and applies caption masking.
+This document describes how Scroll Down Sports renders official team X posts as game highlights. The backend owns data collection; the frontend renders custom highlight cards with remote media URLs and captions.
 
 ## Architecture Overview
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   Postgres DB   │────▶│  Backend API    │────▶│   Frontend UI   │
-│  (game_social_  │     │ /api/social/*   │     │  PostEmbed.tsx  │
+│  (game_social_  │     │ /api/social/*   │     │  XHighlight.tsx │
 │    posts)       │     │                 │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
         ▲
@@ -24,16 +24,22 @@ This document describes how Scroll Down Sports renders official team X posts as 
 
 Table: `game_social_posts`
 
-| Field     | Type      | Notes                           |
-| --------- | --------- | ------------------------------- |
-| id        | UUID      | Primary key                     |
-| game_id   | FK        | References games table          |
-| team_id   | VARCHAR   | Team abbreviation (e.g., "GSW") |
-| post_url  | TEXT      | Full X URL                      |
-| posted_at | TIMESTAMP | When the post was made          |
-| has_video | BOOLEAN   | Optional flag for video content |
+| Field         | Type      | Notes                           |
+| ------------ | --------- | ------------------------------- |
+| id           | UUID      | Primary key                     |
+| game_id      | FK        | References games table          |
+| team_id      | VARCHAR   | Team abbreviation (e.g., "GSW") |
+| post_url     | TEXT      | Full X URL                      |
+| tweet_id     | TEXT      | Original post ID                |
+| posted_at    | TIMESTAMP | When the post was made          |
+| source_handle| TEXT      | X handle for attribution        |
+| tweet_text   | TEXT      | Caption text                    |
+| media_type   | TEXT      | `video`, `image`, or `none`     |
+| video_url    | TEXT      | Remote video URL (not hosted)   |
+| image_url    | TEXT      | Remote image URL (not hosted)   |
+| has_video    | BOOLEAN   | Optional flag for video content |
 
-**Not stored in frontend:** captions, media URLs, engagement metrics. The backend owns collection and spoiler filtering.
+**Not stored in frontend:** engagement metrics. The backend owns collection and spoiler filtering.
 
 ## Game Social Window
 
@@ -52,38 +58,19 @@ This window:
 
 ## Spoiler Filtering
 
-Spoiler filtering is handled in the backend at collection time. The frontend does not filter captions; it only masks them visually.
+Spoiler filtering is handled in the backend at collection time. The frontend additionally truncates score-like patterns to avoid spoilers in captions.
 
 ## Frontend Integration
 
-### PostEmbed Component
+### XHighlight Component
 
-Uses X's official embed widget:
+The frontend renders a custom highlight card that includes:
 
-```tsx
-<blockquote className="twitter-tweet">
-  <a href={postUrl}></a>
-</blockquote>
-```
-
-The widget script (`platform.twitter.com/widgets.js`) handles:
-
-- Video playback
-- Media rendering
-- Responsive sizing
-
-### Caption Masking
-
-Captions are visually masked until intentional reveal:
-
-1. Overlay covers bottom portion of embed
-2. Blur effect hides text
-3. Reveal triggers on:
-   - Slow scroll + dwell time
-   - Intentional click/focus
-   - Global spoiler reveal
-
-See `src/styles/tweetMask.css` for mask styling.
+- Native `<video>` (or `<img>`) with remote URLs
+- Caption in the format `@handle: text`
+- Caption link to the original X post
+- Subtle X icon next to the handle
+- Skeleton loaders and fixed aspect ratio to avoid layout shift
 
 ## Backend API (Expected)
 
@@ -108,7 +95,13 @@ Response:
       "game_id": 123,
       "team_id": "GSW",
       "tweet_url": "https://twitter.com/warriors/status/...",
+      "tweet_id": "1761806498890576044",
       "posted_at": "2024-03-10T19:12:00Z",
+      "source_handle": "warriors",
+      "tweet_text": "Steph takes it coast-to-coast for the early bucket.",
+      "media_type": "video",
+      "video_url": "https://video.twimg.com/....mp4",
+      "image_url": "https://pbs.twimg.com/media/....jpg",
       "has_video": true
     }
   ]
@@ -127,12 +120,18 @@ For MVP, posts can be collected manually:
 ### Basic SQL Insert
 
 ```sql
-INSERT INTO game_social_posts (game_id, team_id, tweet_url, posted_at, has_video)
+INSERT INTO game_social_posts (game_id, team_id, tweet_url, tweet_id, posted_at, source_handle, tweet_text, media_type, video_url, image_url, has_video)
 VALUES (
   123,
   'GSW',
   'https://twitter.com/warriors/status/1761806498890576044',
+  '1761806498890576044',
   '2024-03-10T19:12:00Z',
+  'warriors',
+  'Steph takes it coast-to-coast for the early bucket.',
+  'video',
+  'https://video.twimg.com/....mp4',
+  'https://pbs.twimg.com/media/....jpg',
   true
 );
 ```
@@ -151,10 +150,7 @@ The frontend doesn't change - just swap the data source.
 
 This approach is compliant because:
 
-- ✅ Using official embed widgets (explicitly allowed by X)
 - ✅ Not downloading or re-hosting media
-- ✅ Not storing proprietary content (captions, metrics)
 - ✅ Linking back to original content
-- ✅ Not modifying tweet content
-
-The masking is purely presentation control, not content modification.
+- ✅ Not displaying engagement metrics
+- ✅ Preserving attribution
