@@ -131,7 +131,9 @@ export const GameReplay = () => {
         <div className="mt-10 space-y-6">
           {Array.from({ length: 3 }, (_, index) => (
             <div key={`timeline-skeleton-${index}`} className="x-highlight__loading-card">
-              <div className="x-highlight__media-skeleton" aria-hidden="true"></div>
+              <div className="x-highlight__loading-media" aria-hidden="true">
+                <div className="x-highlight__media-skeleton" />
+              </div>
               <div className="x-highlight__caption-skeleton">
                 <div className="x-highlight__caption-bar"></div>
                 <div className="x-highlight__caption-bar is-short"></div>

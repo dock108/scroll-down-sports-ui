@@ -157,6 +157,13 @@
   flex-direction: column;
 }
 
+.x-highlight__loading-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--color-surface-tint);
+}
+
 .x-highlight__caption-skeleton {
   padding: var(--space-4);
   display: flex;
