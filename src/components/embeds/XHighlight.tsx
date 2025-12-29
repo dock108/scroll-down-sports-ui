@@ -35,7 +35,7 @@ const applySpoilerFilter = (text: string) => {
   const match = text.match(SCORE_PATTERN);
   if (!match || match.index === undefined) return text;
   const trimmed = text.slice(0, match.index).trimEnd();
-  if (!trimmed) return '';
+  if (!trimmed) return '…';
   return `${trimmed}…`;
 };
 
