@@ -6,7 +6,7 @@
     "posted_at": "2024-03-10T19:12:00Z",
     "has_video": true,
     "media_type": "video",
-    "video_url": "https://video.twimg.com/ext_tw_video/1761806498890576044/pu/vid/1280x720/highlight.mp4",
+    "video_url": "https://example.com/placeholder-video.mp4",
     "image_url": "https://pbs.twimg.com/media/GH8YHn1aQAAc9p7.jpg",
     "source_handle": "warriors",
     "tweet_text": "Steph takes it coast-to-coast for the early bucket."
@@ -29,7 +29,7 @@
     "posted_at": "2024-03-10T20:20:00Z",
     "has_video": true,
     "media_type": "video",
-    "video_url": "https://video.twimg.com/ext_tw_video/1761926165636313519/pu/vid/1280x720/second-half.mp4",
+    "video_url": "https://example.com/placeholder-video.mp4",
     "image_url": "https://pbs.twimg.com/media/GH8YLmxaQAApZmF.jpg",
     "source_handle": "warriors",
     "tweet_text": "Klay drills the catch-and-shoot triple off the swing pass."
@@ -41,7 +41,7 @@
     "posted_at": "2024-03-11T23:45:00Z",
     "has_video": true,
     "media_type": "video",
-    "video_url": "https://video.twimg.com/ext_tw_video/1762234208940513468/pu/vid/1280x720/knicks-run.mp4",
+    "video_url": "https://example.com/placeholder-video.mp4",
     "image_url": "https://pbs.twimg.com/media/GH9cLxNaAAANe2k.jpg",
     "source_handle": "nyknicks",
     "tweet_text": "Hart pushes the break and finishes through contact."

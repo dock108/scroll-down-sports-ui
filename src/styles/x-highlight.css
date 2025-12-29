@@ -42,7 +42,11 @@
 .x-highlight__media-skeleton {
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(226, 232, 240, 0.2), rgba(226, 232, 240, 0.6));
+  background: linear-gradient(
+    120deg,
+    var(--color-skeleton-sheen-start),
+    var(--color-skeleton-sheen-end)
+  );
   animation: highlightPulse 1.6s ease-in-out infinite;
 }
 
@@ -108,14 +112,14 @@
   line-height: 1.5;
 }
 
-.x-highlight__caption-text.is-clamped {
+.x-highlight__caption-text--clamped {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.x-highlight__caption-text.is-clamped::after {
+.x-highlight__caption-text--clamped::after {
   content: '';
   position: absolute;
   inset: auto 0 0 0;

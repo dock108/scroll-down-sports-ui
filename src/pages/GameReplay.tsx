@@ -136,7 +136,7 @@ export const GameReplay = () => {
               </div>
               <div className="x-highlight__caption-skeleton">
                 <div className="x-highlight__caption-bar"></div>
-                <div className="x-highlight__caption-bar is-short"></div>
+                <div className="x-highlight__caption-bar x-highlight__caption-bar--short"></div>
               </div>
             </div>
           ))}

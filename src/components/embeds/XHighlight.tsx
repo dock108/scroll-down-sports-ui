@@ -112,7 +112,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
 
   const captionTextClasses = [
     'x-highlight__caption-text',
-    shouldClamp && !isExpanded ? 'is-clamped' : '',
+    shouldClamp && !isExpanded ? 'x-highlight__caption-text--clamped' : '',
   ]
     .filter(Boolean)
     .join(' ');
