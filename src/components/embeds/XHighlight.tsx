@@ -197,7 +197,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
                 controls
                 playsInline
                 preload="metadata"
-                poster={post.imageUrl}
+                poster={post.imageUrl || undefined}
                 onLoadedData={() => setMediaLoaded(true)}
                 onError={() => setMediaFailed(true)}
               >
