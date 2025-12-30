@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "vite build --mode production",
     "preview": "vite preview",
+    "preview:prod": "vite preview --mode production --host 0.0.0.0",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

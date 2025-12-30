@@ -1,4 +1,5 @@
 import posts from '../data/posts.json';
+import { logger } from '../utils/logger';
 
 type FlexibleRecord = Record<string, unknown>;
 
@@ -59,11 +60,8 @@ export interface PostAdapter {
 
 export class MockPostAdapter implements PostAdapter {
   async getPostsForGame(gameId: string): Promise<TimelinePost[]> {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PostAdapter.ts:61',message:'MockPostAdapter getPostsForGame called',data:{gameId,adapter:'MockPostAdapter'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3-adapter-choice'})}).catch(()=>{});
-    // #endregion
     if (!gameId) {
-      console.warn('MockPostAdapter: game id missing.');
+      logger.warn('MockPostAdapter: game id missing.');
       return [];
     }
 
@@ -74,7 +72,7 @@ export class MockPostAdapter implements PostAdapter {
       const filtered = normalized.filter((post) => post.gameId === gameId && post.postUrl);
 
       if (!filtered.length) {
-        console.warn(`MockPostAdapter: no posts found for game ${gameId}.`);
+        logger.warn(`MockPostAdapter: no posts found for game ${gameId}.`);
         return [];
       }
 
@@ -85,7 +83,7 @@ export class MockPostAdapter implements PostAdapter {
         return aTime - bTime;
       });
     } catch (error) {
-      console.warn('MockPostAdapter: failed to load posts.', error);
+      logger.warn('MockPostAdapter: failed to load posts.', { error: String(error) });
       return [];
     }
   }

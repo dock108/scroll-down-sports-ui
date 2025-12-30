@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from '../../utils/env';
+
 interface DataErrorProps {
   message: string;
   onRetry?: () => void;
@@ -19,7 +21,7 @@ export const DataError = ({ message, onRetry }: DataErrorProps) => {
           </button>
         )}
         <p className="text-xs text-gray-400 mt-4">
-          API: {import.meta.env.VITE_SPORTS_API_URL || 'Not configured'}
+          API: {getApiBaseUrl() || 'Not configured'}
         </p>
       </div>
     </div>

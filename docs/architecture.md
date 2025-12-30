@@ -27,8 +27,8 @@ Adapters normalize JSON fixtures and keep the UI decoupled from data shape chang
 
 - `MockGameAdapter` (`src/adapters/GameAdapter.ts`) reads `src/data/games.json`.
 - `MockPostAdapter` (`src/adapters/PostAdapter.ts`) reads `src/data/posts.json`.
-- `SportsApiAdapter` (`src/adapters/SportsApiAdapter.ts`) loads game data from `VITE_SPORTS_API_URL`.
-- `SocialPostApiAdapter` (`src/adapters/SocialPostAdapter.ts`) loads highlight posts from `VITE_SPORTS_API_URL`.
+- `SportsApiAdapter` (`src/adapters/SportsApiAdapter.ts`) loads game data from `VITE_API_URL`.
+- `SocialPostApiAdapter` (`src/adapters/SocialPostAdapter.ts`) loads highlight posts from `VITE_API_URL`.
 
 ## Spoiler state
 

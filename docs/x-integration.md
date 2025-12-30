@@ -74,7 +74,7 @@ The frontend renders a custom highlight card that includes:
 
 ## Backend API (Expected)
 
-The frontend expects these endpoints (scoped to `VITE_SPORTS_API_URL`):
+The frontend expects these endpoints (scoped to `VITE_API_URL`):
 
 ### GET /api/social/posts/game/:gameId
 

@@ -1,4 +1,5 @@
 import games from '../data/games.json';
+import { logger } from '../utils/logger';
 
 type FlexibleRecord = Record<string, unknown>;
 
@@ -128,14 +129,14 @@ export class MockGameAdapter implements GameAdapter {
           return true;
         });
     } catch (error) {
-      console.warn('MockGameAdapter: failed to load games.', error);
+      logger.warn('MockGameAdapter: failed to load games.', { error: String(error) });
       return [];
     }
   }
 
   async getGameById(id: string): Promise<GameDetails | null> {
     if (!id) {
-      console.warn('MockGameAdapter: game id missing.');
+      logger.warn('MockGameAdapter: game id missing.');
       return null;
     }
 
@@ -145,13 +146,13 @@ export class MockGameAdapter implements GameAdapter {
         .find((game) => game.id === id);
 
       if (!matched) {
-        console.warn(`MockGameAdapter: game not found for id ${id}.`);
+        logger.warn(`MockGameAdapter: game not found for id ${id}.`);
         return null;
       }
 
       return matched;
     } catch (error) {
-      console.warn('MockGameAdapter: failed to load game.', error);
+      logger.warn('MockGameAdapter: failed to load game.', { error: String(error) });
       return null;
     }
   }

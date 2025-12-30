@@ -1,7 +1,8 @@
 import { ApiConnectionError } from './SportsApiAdapter';
 import { MockPostAdapter, TimelinePost } from './PostAdapter';
-
-const API_BASE = import.meta.env.VITE_SPORTS_API_URL || 'http://localhost:8000';
+import { getApiBaseUrl, useMockAdapters } from '../utils/env';
+import { buildApiUrl, fetchJson } from '../utils/http';
+import { logger } from '../utils/logger';
 
 /**
  * Social post as stored in the database
@@ -54,55 +55,37 @@ export interface SocialPostAdapter {
  */
 export class SocialPostApiAdapter implements SocialPostAdapter {
   async getPostsForGame(gameId: string): Promise<TimelinePost[]> {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:56',message:'getPostsForGame called',data:{gameId,adapter:'SocialPostApiAdapter'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3-adapter-choice'})}).catch(()=>{});
-    // #endregion
     if (!gameId) {
-      console.warn('SocialPostApiAdapter: game id missing.');
+      logger.warn('SocialPostApiAdapter: game id missing.');
       return [];
     }
 
     try {
       // Use the dedicated game endpoint for cleaner API
-      const data = await this.fetchJson<ApiPostResponse>(
-        `${API_BASE}/api/social/posts/game/${gameId}`,
-      );
-
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:70',message:'API raw response',data:{postCount:(data.posts||[]).length,samplePost:(data.posts||[])[0]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1-api-response'})}).catch(()=>{});
-      // #endregion
+      const apiUrl = buildApiUrl(getApiBaseUrl(), `/api/social/posts/game/${gameId}`);
+      const data = await this.fetchJson<ApiPostResponse>(apiUrl);
 
       // Posts are already sorted by posted_at ascending from the API.
       const mappedPosts = (data.posts || []).map(this.mapPost);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/4fe678e9-7e30-4df9-ab5b-0a2163296a62',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SocialPostAdapter.ts:75',message:'Mapped posts result',data:{count:mappedPosts.length,sampleMapped:mappedPosts[0]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2-mapping'})}).catch(()=>{});
-      // #endregion
       return mappedPosts;
     } catch (error) {
       if (error instanceof ApiConnectionError) {
         throw error;
       }
-      console.warn('SocialPostApiAdapter: failed to load posts.', error);
+      logger.warn('SocialPostApiAdapter: failed to load posts.', { error: String(error) });
       return [];
     }
   }
 
   private async fetchJson<T>(url: string): Promise<T> {
-    let response: Response;
-
     try {
-      response = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } catch {
+      return await fetchJson<T>(url);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new ApiConnectionError(error.message);
+      }
       throw new ApiConnectionError('Unable to connect to social posts API. Is the server running?');
     }
-
-    if (!response.ok) {
-      throw new ApiConnectionError(`API error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json()) as T;
   }
 
   private mapPost(post: ApiSocialPost): TimelinePost {
@@ -153,10 +136,16 @@ const extractTweetId = (url: string) => {
  * Factory function to get the appropriate social post adapter
  */
 export function getSocialPostAdapter(): SocialPostAdapter {
-  const apiUrl = import.meta.env.VITE_SPORTS_API_URL;
-  if (apiUrl) {
-    return new SocialPostApiAdapter();
+  if (useMockAdapters()) {
+    logger.info('Using mock social post adapter (feature flag enabled).');
+    return new MockPostAdapter();
   }
-  // Fallback to mock adapter for local development
-  return new MockPostAdapter();
+
+  const apiUrl = getApiBaseUrl();
+  if (!apiUrl) {
+    logger.warn('API URL missing; falling back to mock social post adapter.');
+    return new MockPostAdapter();
+  }
+
+  return new SocialPostApiAdapter();
 }

@@ -1,20 +1,10 @@
 services:
   ui:
-    build:
-      context: .
-      args:
-        # Build-time arg for Vite - browser needs localhost, not host.docker.internal
-        VITE_SPORTS_API_URL: http://localhost:8000
+    image: ${UI_IMAGE}
     container_name: ${PROJECT_NAME:-scroll-down-sports-ui}
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+      VITE_USE_MOCK_ADAPTERS: ${VITE_USE_MOCK_ADAPTERS:-false}
+      VITE_APP_VERSION: ${VITE_APP_VERSION:-dev}
     ports:
-      - '5173:5173'
-    volumes:
-      # Hot reload: mount source directories
-      - ./src:/app/src
-      - ./public:/app/public
-      - ./index.html:/app/index.html
-      # Mount .env for hot reload to pick up env vars
-      - ./.env:/app/.env:ro
-    extra_hosts:
-      # Allow container to reach host machine services
-      - 'host.docker.internal:host-gateway'
+      - '8080:80'

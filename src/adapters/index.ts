@@ -1,13 +1,22 @@
 import { GameAdapter } from './GameAdapter';
 import { MockGameAdapter } from './GameAdapter';
 import { SportsApiAdapter, ApiConnectionError } from './SportsApiAdapter';
+import { getApiBaseUrl, useMockAdapters } from '../utils/env';
+import { logger } from '../utils/logger';
 
 export function getGameAdapter(): GameAdapter {
-  const apiUrl = import.meta.env.VITE_SPORTS_API_URL;
-  if (apiUrl) {
-    return new SportsApiAdapter();
+  if (useMockAdapters()) {
+    logger.info('Using mock game adapter (feature flag enabled).');
+    return new MockGameAdapter();
   }
-  return new MockGameAdapter();
+
+  const apiUrl = getApiBaseUrl();
+  if (!apiUrl) {
+    logger.warn('API URL missing; falling back to mock game adapter.');
+    return new MockGameAdapter();
+  }
+
+  return new SportsApiAdapter();
 }
 
 export { ApiConnectionError };

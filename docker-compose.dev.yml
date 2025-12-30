@@ -1,0 +1,15 @@
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ${PROJECT_NAME:-scroll-down-sports-ui-dev}
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - ./.env:/app/.env:ro
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

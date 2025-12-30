@@ -1,4 +1,6 @@
 import { GameAdapter, GameSummary, GameDetails } from './GameAdapter';
+import { getApiBaseUrl } from '../utils/env';
+import { buildApiUrl, fetchJson } from '../utils/http';
 
 type ApiGameSummary = {
   id: string | number;
@@ -23,8 +25,6 @@ export class ApiConnectionError extends Error {
   }
 }
 
-const API_BASE = import.meta.env.VITE_SPORTS_API_URL || 'http://localhost:8000';
-
 export class SportsApiAdapter implements GameAdapter {
   async getGamesByDateRange(start: Date, end: Date): Promise<GameSummary[]> {
     const params = new URLSearchParams();
@@ -37,33 +37,26 @@ export class SportsApiAdapter implements GameAdapter {
     }
     params.append('limit', '100');
 
-    const data = await this.fetchJson<{ games: ApiGameSummary[] }>(
-      `${API_BASE}/api/admin/sports/games?${params}`,
-    );
+    const apiUrl = buildApiUrl(getApiBaseUrl(), `/api/admin/sports/games?${params}`);
+    const data = await this.fetchJson<{ games: ApiGameSummary[] }>(apiUrl);
     return data.games.map(this.mapGameSummary);
   }
 
   async getGameById(id: string): Promise<GameDetails | null> {
-    const data = await this.fetchJson<ApiGameDetails>(`${API_BASE}/api/admin/sports/games/${id}`);
+    const apiUrl = buildApiUrl(getApiBaseUrl(), `/api/admin/sports/games/${id}`);
+    const data = await this.fetchJson<ApiGameDetails>(apiUrl);
     return this.mapGameDetails(data);
   }
 
   private async fetchJson<T>(url: string): Promise<T> {
-    let response: Response;
-
     try {
-      response = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } catch {
+      return await fetchJson<T>(url);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new ApiConnectionError(error.message);
+      }
       throw new ApiConnectionError('Unable to connect to sports data API. Is the server running?');
     }
-
-    if (!response.ok) {
-      throw new ApiConnectionError(`API error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json()) as T;
   }
 
   private mapGameSummary(game: ApiGameSummary): GameSummary {

@@ -15,10 +15,12 @@ Then open the URL printed by Vite (typically `http://localhost:5173`).
 
 ### Optional API wiring
 
-Set `VITE_SPORTS_API_URL` to use live adapters instead of mock JSON:
+Set `VITE_API_URL` to use live adapters instead of mock JSON:
 
 - `SportsApiAdapter` for games and stats.
 - `SocialPostApiAdapter` for highlight posts.
+
+To keep mocks enabled locally, set `VITE_USE_MOCK_ADAPTERS=true`.
 
 ## How X highlights are handled
 
