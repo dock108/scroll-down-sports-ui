@@ -170,10 +170,14 @@ export class CatchupApiAdapter implements CatchupAdapter {
   private mapGameResponse(data: ApiGameResponse): CatchupResponse {
     const game = data.game || {};
     const gameId = String(game.id || '');
-    
+
     // Map ALL social posts
     const socialPosts: TimelinePost[] = (data.social_posts || []).map((p) => {
-      const mediaType = normalizeMediaType(p.media_type ?? null, p.video_url ?? null, p.image_url ?? null);
+      const mediaType = normalizeMediaType(
+        p.media_type ?? null,
+        p.video_url ?? null,
+        p.image_url ?? null,
+      );
       return {
         id: String(p.id || ''),
         gameId,
@@ -192,15 +196,16 @@ export class CatchupApiAdapter implements CatchupAdapter {
     });
 
     // Sort social posts by posted time (earliest first)
-    const sortedPosts = [...socialPosts].sort((a, b) => 
-      new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
+    const sortedPosts = [...socialPosts].sort(
+      (a, b) => new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime(),
     );
 
     // Split posts: pre-game, in-game, post-game with simple heuristics
     const postGamePosts = this.getPostGamePosts(sortedPosts, game);
     const postGameSet = new Set(postGamePosts);
     const remainingPosts = sortedPosts.filter((post) => !postGameSet.has(post));
-    const preGameCount = remainingPosts.length > 0 ? Math.max(1, Math.floor(remainingPosts.length * 0.2)) : 0;
+    const preGameCount =
+      remainingPosts.length > 0 ? Math.max(1, Math.floor(remainingPosts.length * 0.2)) : 0;
     const preGamePosts = remainingPosts.slice(0, preGameCount);
     const inGamePosts = remainingPosts.slice(preGameCount);
 
@@ -226,13 +231,10 @@ export class CatchupApiAdapter implements CatchupAdapter {
     // Distribute in-game posts proportionally across timeline
     if (timeline.length > 0 && inGamePosts.length > 0) {
       const postsPerSection = Math.ceil(timeline.length / inGamePosts.length);
-      
+
       inGamePosts.forEach((post, postIndex) => {
         // Distribute post to timeline entry based on proportional position
-        const targetIndex = Math.min(
-          Math.floor(postIndex * postsPerSection),
-          timeline.length - 1
-        );
+        const targetIndex = Math.min(Math.floor(postIndex * postsPerSection), timeline.length - 1);
         timeline[targetIndex].highlights.push(post);
       });
     }
@@ -276,7 +278,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
 
   /**
    * Group post-game content using available timestamps.
-   * TODO: Better post-game grouping once event timestamps are consistently available.
+   * Planned: better post-game grouping once event timestamps are consistently available.
    */
   private getPostGamePosts(posts: TimelinePost[], game: ApiGameData): TimelinePost[] {
     if (!posts.length) return [];
@@ -332,7 +334,6 @@ export class CatchupApiAdapter implements CatchupAdapter {
 
     return completedSeconds;
   }
-
 }
 
 /**

@@ -18,7 +18,7 @@ export interface PostAdapter {
   getPostsForGame(gameId: string): Promise<TimelinePost[]>;
 }
 
-// TODO: Backend should enforce allowed media_type values; UI normalizes defensively for now.
+// Note: Backend should enforce allowed media_type values; UI normalizes defensively for now.
 export function normalizeMediaType(
   mediaType: string | null,
   videoUrl?: string | null,
@@ -33,27 +33,3 @@ export function normalizeMediaType(
   if (hasImage) return 'image';
   return 'none';
 }
-
-const isTweetId = (value: string) => /^\d+$/.test(value.trim());
-
-const extractTweetId = (url: string) => {
-  if (!url) {
-    return '';
-  }
-  let normalized = url.trim();
-  if (!/^https?:\/\//i.test(normalized)) {
-    normalized = `https://${normalized}`;
-  }
-  try {
-    const parsed = new URL(normalized);
-    const segments = parsed.pathname.split('/').filter(Boolean);
-    const statusIndex = segments.findIndex((segment) => segment === 'status');
-    if (statusIndex >= 0 && segments[statusIndex + 1]) {
-      const idCandidate = segments[statusIndex + 1].split('?')[0];
-      return isTweetId(idCandidate) ? idCandidate : '';
-    }
-  } catch {
-    return '';
-  }
-  return '';
-};
