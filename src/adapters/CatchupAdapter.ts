@@ -82,6 +82,8 @@ type ApiGameData = {
   venue?: string;
   home_score?: number;
   away_score?: number;
+  game_end_time?: string;
+  final_whistle_time?: string;
 };
 
 type ApiTeamStat = {
@@ -168,6 +170,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
   private mapGameResponse(data: ApiGameResponse): CatchupResponse {
     const game = data.game || {};
     const gameId = String(game.id || '');
+    const endTimestamp = this.parseTimestamp(game.game_end_time || game.final_whistle_time);
     
     // Map ALL social posts
     const socialPosts: TimelinePost[] = (data.social_posts || []).map((p) => ({
@@ -181,7 +184,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
       mediaType: p.media_type,
       videoUrl: p.video_url,
       imageUrl: p.image_url,
-      sourceHandle: p.source_handle,
+      sourceHandle: p.source_handle || '',
       tweetText: p.tweet_text,
     }));
 
@@ -190,10 +193,12 @@ export class CatchupApiAdapter implements CatchupAdapter {
       new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
     );
 
+    const { basePosts, postGamePosts } = this.partitionPostsByEndTime(sortedPosts, endTimestamp);
+
     // Split posts: first 20% go to pre-game, rest distributed in timeline
-    const preGameCount = Math.max(1, Math.floor(sortedPosts.length * 0.2));
-    const preGamePosts = sortedPosts.slice(0, preGameCount);
-    const inGamePosts = sortedPosts.slice(preGameCount);
+    const preGameCount = basePosts.length > 0 ? Math.max(1, Math.floor(basePosts.length * 0.2)) : 0;
+    const preGamePosts = basePosts.slice(0, preGameCount);
+    const inGamePosts = basePosts.slice(preGameCount);
 
     // Convert ALL PBP events to timeline entries
     const pbpEvents = data.plays || [];
@@ -255,7 +260,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
       },
       preGamePosts, // First 20% of posts chronologically
       timeline,
-      postGamePosts: [], // TODO: Last 20% after game ends
+      postGamePosts,
       playerStats,
       teamStats,
       finalDetails: {
@@ -299,6 +304,38 @@ export class CatchupApiAdapter implements CatchupAdapter {
     return completedSeconds;
   }
 
+  private parseTimestamp(value?: string): number | null {
+    if (!value) return null;
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private partitionPostsByEndTime(posts: TimelinePost[], endTimestamp: number | null) {
+    if (posts.length === 0) {
+      return { basePosts: [], postGamePosts: [] };
+    }
+
+    if (endTimestamp !== null) {
+      const postGamePosts = posts.filter((post) => {
+        const postedAt = this.parseTimestamp(post.postedAt);
+        return postedAt !== null && postedAt > endTimestamp;
+      });
+      const basePosts = posts.filter((post) => {
+        const postedAt = this.parseTimestamp(post.postedAt);
+        return postedAt === null || postedAt <= endTimestamp;
+      });
+      return { basePosts, postGamePosts };
+    }
+
+    const fallbackCount = Math.floor(posts.length * 0.1);
+    if (fallbackCount <= 0) {
+      return { basePosts: posts, postGamePosts: [] };
+    }
+    return {
+      basePosts: posts.slice(0, -fallbackCount),
+      postGamePosts: posts.slice(-fallbackCount),
+    };
+  }
 }
 
 /**

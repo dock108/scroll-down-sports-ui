@@ -9,7 +9,7 @@ export interface TimelinePost {
   mediaType?: 'video' | 'image' | 'none';
   videoUrl?: string;
   imageUrl?: string;
-  sourceHandle?: string;
+  sourceHandle: string;
   tweetText?: string;
 }
 

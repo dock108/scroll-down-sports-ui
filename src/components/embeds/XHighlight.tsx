@@ -28,11 +28,36 @@ const getHandleFromUrl = (postUrl: string) => {
   }
 };
 
-const normalizeHandle = (handle?: string, postUrl?: string) => {
-  const cleaned = (handle || '').replace(/^@/, '').trim();
+const normalizeHandle = (handle: string, postUrl: string) => {
+  const cleaned = handle.replace(/^@/, '').trim();
   if (cleaned) return cleaned;
   const fromUrl = getHandleFromUrl(postUrl || '');
   return fromUrl || 'x';
+};
+
+const normalizeMediaType = ({
+  mediaType,
+  videoUrl,
+  imageUrl,
+}: {
+  mediaType?: MediaType;
+  videoUrl?: string;
+  imageUrl?: string;
+}): MediaType => {
+  if (mediaType === 'video' || mediaType === 'image' || mediaType === 'none') {
+    return mediaType;
+  }
+
+  if (mediaType && mediaType !== 'video' && mediaType !== 'image' && mediaType !== 'none') {
+    console.warn('XHighlight: unexpected media type.', { mediaType });
+  }
+
+  if (videoUrl) {
+    // Prefer video when both media URLs are present unless mediaType explicitly overrides.
+    return 'video';
+  }
+  if (imageUrl) return 'image';
+  return 'none';
 };
 
 const applySpoilerFilter = (text: string) => {
@@ -66,14 +91,15 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const [mediaFailed, setMediaFailed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const mediaType: MediaType = useMemo(() => {
-    if (post.mediaType === 'video' || post.mediaType === 'image' || post.mediaType === 'none') {
-      return post.mediaType;
-    }
-    if (post.videoUrl) return 'video';
-    if (post.imageUrl) return 'image';
-    return 'none';
-  }, [post.imageUrl, post.mediaType, post.videoUrl]);
+  const mediaType: MediaType = useMemo(
+    () =>
+      normalizeMediaType({
+        mediaType: post.mediaType,
+        videoUrl: post.videoUrl,
+        imageUrl: post.imageUrl,
+      }),
+    [post.imageUrl, post.mediaType, post.videoUrl],
+  );
 
   const handle = normalizeHandle(post.sourceHandle, post.postUrl);
   const rawText = post.tweetText?.trim() ?? '';

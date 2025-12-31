@@ -18,7 +18,7 @@ export interface GameSocialPost {
   mediaType?: 'video' | 'image' | 'none';
   videoUrl?: string;
   imageUrl?: string;
-  sourceHandle?: string;
+  sourceHandle: string;
   tweetText?: string;
 }
 
@@ -102,7 +102,7 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
       mediaType: post.media_type,
       videoUrl: post.video_url,
       imageUrl: post.image_url,
-      sourceHandle: post.source_handle,
+      sourceHandle: post.source_handle || '',
       tweetText: post.tweet_text,
     };
   }
