@@ -28,10 +28,10 @@ const getHandleFromUrl = (postUrl: string) => {
   }
 };
 
-const normalizeHandle = (handle?: string, postUrl?: string) => {
-  const cleaned = (handle || '').replace(/^@/, '').trim();
+const normalizeHandle = (handle: string, postUrl: string) => {
+  const cleaned = handle.replace(/^@/, '').trim();
   if (cleaned) return cleaned;
-  const fromUrl = getHandleFromUrl(postUrl || '');
+  const fromUrl = getHandleFromUrl(postUrl);
   return fromUrl || 'x';
 };
 
@@ -99,7 +99,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   useEffect(() => {
     const rawValue = post.mediaTypeRaw;
     if (!rawValue) return;
-    if (rawValue !== 'video' && rawValue !== 'image' && rawValue !== 'none' && rawValue !== mediaType) {
+    if (rawValue !== 'video' && rawValue !== 'image' && rawValue !== 'none') {
       console.warn('[SocialPost] Unexpected media_type value, normalized:', rawValue);
     }
   }, [mediaType, post.mediaTypeRaw]);

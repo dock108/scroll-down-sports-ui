@@ -198,7 +198,8 @@ export class CatchupApiAdapter implements CatchupAdapter {
 
     // Split posts: pre-game, in-game, post-game with simple heuristics
     const postGamePosts = this.getPostGamePosts(sortedPosts, game);
-    const remainingPosts = sortedPosts.filter((post) => !postGamePosts.includes(post));
+    const postGameSet = new Set(postGamePosts);
+    const remainingPosts = sortedPosts.filter((post) => !postGameSet.has(post));
     const preGameCount = remainingPosts.length > 0 ? Math.max(1, Math.floor(remainingPosts.length * 0.2)) : 0;
     const preGamePosts = remainingPosts.slice(0, preGameCount);
     const inGamePosts = remainingPosts.slice(preGameCount);
