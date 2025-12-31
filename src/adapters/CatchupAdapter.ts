@@ -1,7 +1,7 @@
 import { ApiConnectionError } from './SportsApiAdapter';
 import type { PlayerStat, TeamStat } from './GameAdapter';
 import type { PbpEvent } from './PbpAdapter';
-import type { TimelinePost } from './PostAdapter';
+import { normalizeMediaType, type TimelinePost } from './PostAdapter';
 import { getApiBaseUrl } from '../utils/env';
 import { logger } from '../utils/logger';
 
@@ -79,6 +79,8 @@ type ApiGameData = {
   home_team?: string;
   away_team?: string;
   game_date?: string;
+  game_end_time?: string;
+  final_whistle_time?: string;
   venue?: string;
   home_score?: number;
   away_score?: number;
@@ -170,30 +172,36 @@ export class CatchupApiAdapter implements CatchupAdapter {
     const gameId = String(game.id || '');
     
     // Map ALL social posts
-    const socialPosts: TimelinePost[] = (data.social_posts || []).map((p) => ({
-      id: String(p.id || ''),
-      gameId,
-      team: p.team_abbreviation || '',
-      postUrl: p.post_url || '',
-      tweetId: this.extractTweetId(p.post_url || ''),
-      postedAt: p.posted_at || '',
-      hasVideo: p.has_video,
-      mediaType: p.media_type,
-      videoUrl: p.video_url,
-      imageUrl: p.image_url,
-      sourceHandle: p.source_handle,
-      tweetText: p.tweet_text,
-    }));
+    const socialPosts: TimelinePost[] = (data.social_posts || []).map((p) => {
+      const mediaType = normalizeMediaType(p.media_type ?? null, p.video_url ?? null, p.image_url ?? null);
+      return {
+        id: String(p.id || ''),
+        gameId,
+        team: p.team_abbreviation || '',
+        postUrl: p.post_url || '',
+        tweetId: this.extractTweetId(p.post_url || ''),
+        postedAt: p.posted_at || '',
+        hasVideo: mediaType === 'video',
+        mediaType,
+        mediaTypeRaw: p.media_type ?? null,
+        videoUrl: p.video_url || '',
+        imageUrl: p.image_url || '',
+        sourceHandle: p.source_handle || '',
+        tweetText: p.tweet_text || '',
+      };
+    });
 
     // Sort social posts by posted time (earliest first)
     const sortedPosts = [...socialPosts].sort((a, b) => 
       new Date(a.postedAt).getTime() - new Date(b.postedAt).getTime()
     );
 
-    // Split posts: first 20% go to pre-game, rest distributed in timeline
-    const preGameCount = Math.max(1, Math.floor(sortedPosts.length * 0.2));
-    const preGamePosts = sortedPosts.slice(0, preGameCount);
-    const inGamePosts = sortedPosts.slice(preGameCount);
+    // Split posts: pre-game, in-game, post-game with simple heuristics
+    const postGamePosts = this.getPostGamePosts(sortedPosts, game);
+    const remainingPosts = sortedPosts.filter((post) => !postGamePosts.includes(post));
+    const preGameCount = remainingPosts.length > 0 ? Math.max(1, Math.floor(remainingPosts.length * 0.2)) : 0;
+    const preGamePosts = remainingPosts.slice(0, preGameCount);
+    const inGamePosts = remainingPosts.slice(preGameCount);
 
     // Convert ALL PBP events to timeline entries
     const pbpEvents = data.plays || [];
@@ -255,7 +263,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
       },
       preGamePosts, // First 20% of posts chronologically
       timeline,
-      postGamePosts: [], // TODO: Last 20% after game ends
+      postGamePosts,
       playerStats,
       teamStats,
       finalDetails: {
@@ -263,6 +271,31 @@ export class CatchupApiAdapter implements CatchupAdapter {
         awayScore: game.away_score,
       },
     };
+  }
+
+  /**
+   * Group post-game content using available timestamps.
+   * TODO: Better post-game grouping once event timestamps are consistently available.
+   */
+  private getPostGamePosts(posts: TimelinePost[], game: ApiGameData): TimelinePost[] {
+    if (!posts.length) return [];
+
+    const endTimeValue = game.final_whistle_time || game.game_end_time || '';
+    if (endTimeValue) {
+      const endTimestamp = new Date(endTimeValue).getTime();
+      if (!Number.isNaN(endTimestamp)) {
+        const postGame = posts.filter((post) => {
+          const postedAt = new Date(post.postedAt).getTime();
+          return !Number.isNaN(postedAt) && postedAt > endTimestamp;
+        });
+        if (postGame.length > 0) {
+          return postGame;
+        }
+      }
+    }
+
+    const fallbackCount = Math.max(1, Math.round(posts.length * 0.1));
+    return posts.slice(-fallbackCount);
   }
 
   /**

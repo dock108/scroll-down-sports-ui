@@ -1,5 +1,5 @@
 import { ApiConnectionError } from './SportsApiAdapter';
-import { TimelinePost } from './PostAdapter';
+import { TimelinePost, normalizeMediaType } from './PostAdapter';
 import { getApiBaseUrl } from '../utils/env';
 import { buildApiUrl, fetchJson } from '../utils/http';
 import { logger } from '../utils/logger';
@@ -52,6 +52,8 @@ export interface SocialPostAdapter {
  * API endpoints:
  * - GET /api/social/posts/game/{gameId} - Get posts for a specific game
  * - GET /api/social/posts?team_id={teamId}&start_date={}&end_date={} - Filter posts
+ *
+ * Note: This adapter is a secondary/utility path and is not used by the catchup timeline yet.
  */
 export class SocialPostApiAdapter implements SocialPostAdapter {
   async getPostsForGame(gameId: string): Promise<TimelinePost[]> {
@@ -91,6 +93,7 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
   private mapPost(post: ApiSocialPost): TimelinePost {
     const postUrl = String(post.post_url || post.tweet_url || '');
     const idCandidate = String(post.tweet_id || post.id || '');
+    const mediaType = normalizeMediaType(post.media_type ?? null, post.video_url ?? null, post.image_url ?? null);
     return {
       id: String(post.id || post.post_url || post.tweet_url || ''),
       gameId: String(post.game_id || ''),
@@ -98,12 +101,13 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
       postUrl,
       tweetId: extractTweetId(postUrl) || (isTweetId(idCandidate) ? idCandidate : ''),
       postedAt: String(post.posted_at || ''),
-      hasVideo: Boolean(post.has_video),
-      mediaType: post.media_type,
-      videoUrl: post.video_url,
-      imageUrl: post.image_url,
-      sourceHandle: post.source_handle,
-      tweetText: post.tweet_text,
+      hasVideo: mediaType === 'video',
+      mediaType,
+      mediaTypeRaw: post.media_type ?? null,
+      videoUrl: String(post.video_url || ''),
+      imageUrl: String(post.image_url || ''),
+      sourceHandle: String(post.source_handle || ''),
+      tweetText: String(post.tweet_text || ''),
     };
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TimelinePost } from '../../adapters/PostAdapter';
 
 type MediaType = 'video' | 'image' | 'none';
@@ -66,17 +66,10 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const [mediaFailed, setMediaFailed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const mediaType: MediaType = useMemo(() => {
-    if (post.mediaType === 'video' || post.mediaType === 'image' || post.mediaType === 'none') {
-      return post.mediaType;
-    }
-    if (post.videoUrl) return 'video';
-    if (post.imageUrl) return 'image';
-    return 'none';
-  }, [post.imageUrl, post.mediaType, post.videoUrl]);
+  const mediaType: MediaType = post.mediaType;
 
   const handle = normalizeHandle(post.sourceHandle, post.postUrl);
-  const rawText = post.tweetText?.trim() ?? '';
+  const rawText = post.tweetText.trim();
   const spoilerSafeText = applySpoilerFilter(rawText);
   const hasCaptionText = Boolean(spoilerSafeText);
   const shouldClamp = hasCaptionText && spoilerSafeText.length > CAPTION_MAX_CHARS;
@@ -102,6 +95,14 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
     setMediaLoaded(false);
     setMediaFailed(false);
   }, [post.id, post.videoUrl, post.imageUrl, mediaType]);
+
+  useEffect(() => {
+    const rawValue = post.mediaTypeRaw;
+    if (!rawValue) return;
+    if (rawValue !== 'video' && rawValue !== 'image' && rawValue !== 'none' && rawValue !== mediaType) {
+      console.warn('[SocialPost] Unexpected media_type value, normalized:', rawValue);
+    }
+  }, [mediaType, post.mediaTypeRaw]);
 
   const hasVideo = mediaType === 'video' && Boolean(post.videoUrl);
   const hasImage = mediaType === 'image' && Boolean(post.imageUrl);
