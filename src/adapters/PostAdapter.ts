@@ -29,7 +29,6 @@ export function normalizeMediaType(
   const hasVideo = Boolean(videoUrl);
   const hasImage = Boolean(imageUrl);
   // When both URLs exist, prefer video unless the backend explicitly labeled an image.
-  if (hasVideo && hasImage) return 'video';
   if (hasVideo) return 'video';
   if (hasImage) return 'image';
   return 'none';
