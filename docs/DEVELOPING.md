@@ -22,6 +22,16 @@ Then open the URL printed by Vite (typically `http://localhost:5173`).
 
 Set `VITE_API_URL` to the sports admin API base. The UI always fetches from the live API.
 
+### Scripts
+
+```bash
+npm run dev          # Start the Vite dev server
+npm run build        # Build for production
+npm run preview      # Preview the production build
+npm run lint         # Run ESLint
+npm run format       # Format with Prettier
+```
+
 ## How X highlights are handled
 
 - `src/components/embeds/XHighlight.tsx` renders custom highlight cards with native media elements.
@@ -47,10 +57,10 @@ Set `VITE_API_URL` to the sports admin API base. The UI always fetches from the 
 
 ## Key files
 
-| File | Purpose |
-| ---- | ------- |
-| `src/pages/GameCatchup.tsx` | Main catchup page with spoiler reveal |
-| `src/adapters/CatchupAdapter.ts` | Data fetching and mapping |
-| `src/components/embeds/XHighlight.tsx` | Social post card |
-| `src/components/timeline/CollapsibleSection.tsx` | Expandable section wrapper |
-| `src/components/timeline/TimelineSection.tsx` | PBP event + highlights |
+| File                                             | Purpose                               |
+| ------------------------------------------------ | ------------------------------------- |
+| `src/pages/GameCatchup.tsx`                      | Main catchup page with spoiler reveal |
+| `src/adapters/CatchupAdapter.ts`                 | Data fetching and mapping             |
+| `src/components/embeds/XHighlight.tsx`           | Social post card                      |
+| `src/components/timeline/CollapsibleSection.tsx` | Expandable section wrapper            |
+| `src/components/timeline/TimelineSection.tsx`    | PBP event + highlights                |
