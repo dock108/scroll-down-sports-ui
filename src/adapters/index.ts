@@ -2,7 +2,7 @@ import { GameAdapter } from './GameAdapter';
 import { SportsApiAdapter, ApiConnectionError } from './SportsApiAdapter';
 
 export function getGameAdapter(): GameAdapter {
-  return new SportsApiAdapter();
+    return new SportsApiAdapter();
 }
 
 export { ApiConnectionError };

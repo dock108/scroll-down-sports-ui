@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { TimelinePost } from '../../adapters/PostAdapter';
+import { TwitterEmbed } from './TwitterEmbed';
 
 type MediaType = 'video' | 'image' | 'none';
 
@@ -104,12 +105,13 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
     }
   }, [post.mediaTypeRaw]);
 
-  const hasVideo = mediaType === 'video' && Boolean(post.videoUrl);
+  const hasVideoUrl = mediaType === 'video' && Boolean(post.videoUrl);
   const hasImage = mediaType === 'image' && Boolean(post.imageUrl);
-  const shouldLoadMedia = isInView && (hasVideo || hasImage);
+  const needsTwitterEmbed = mediaType === 'video' && !post.videoUrl && post.postUrl;
+  const shouldLoadMedia = isInView && (hasVideoUrl || hasImage);
   const showFallback =
-    mediaType !== 'none' && ((!hasVideo && !hasImage) || mediaFailed);
-  const showSkeleton = mediaType !== 'none' && !showFallback && !mediaLoaded;
+    mediaType !== 'none' && !needsTwitterEmbed && ((!hasVideoUrl && !hasImage) || mediaFailed);
+  const showSkeleton = mediaType !== 'none' && !needsTwitterEmbed && !showFallback && !mediaLoaded;
 
   const captionTextClasses = [
     'x-highlight__caption-text',
@@ -192,7 +194,10 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
                 </p>
               </div>
             ) : null}
-            {shouldLoadMedia && hasVideo ? (
+            {needsTwitterEmbed && isInView ? (
+              <TwitterEmbed tweetUrl={post.postUrl} tweetId={post.tweetId} />
+            ) : null}
+            {shouldLoadMedia && hasVideoUrl ? (
               <video
                 className="x-highlight__video"
                 controls
@@ -205,7 +210,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
                 <source src={post.videoUrl} type="video/mp4" />
               </video>
             ) : null}
-            {shouldLoadMedia && !hasVideo && hasImage ? (
+            {shouldLoadMedia && !hasVideoUrl && hasImage ? (
               <img
                 className="x-highlight__image"
                 src={post.imageUrl}

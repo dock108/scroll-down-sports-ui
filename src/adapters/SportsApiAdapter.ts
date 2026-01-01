@@ -1,12 +1,14 @@
 import { GameAdapter, GameSummary, GameDetails } from './GameAdapter';
 import { getApiBaseUrl } from '../utils/env';
 import { buildApiUrl, fetchJson } from '../utils/http';
+import { config } from '../config';
 
 type ApiGameSummary = {
   id: string | number;
   game_date?: string;
   home_team?: string;
   away_team?: string;
+  league_code?: string;
 };
 
 type ApiGameDetails = {
@@ -39,7 +41,14 @@ export class SportsApiAdapter implements GameAdapter {
 
     const apiUrl = buildApiUrl(getApiBaseUrl(), `/api/admin/sports/games?${params}`);
     const data = await this.fetchJson<{ games: ApiGameSummary[] }>(apiUrl);
-    return data.games.map(this.mapGameSummary);
+
+    // Filter by enabled leagues
+    const enabledLeagues = config.enabledLeagues;
+    const filteredGames = data.games.filter(
+      (game) => !game.league_code || enabledLeagues.includes(game.league_code)
+    );
+
+    return filteredGames.map(this.mapGameSummary);
   }
 
   async getGameById(id: string): Promise<GameDetails | null> {
