@@ -171,29 +171,37 @@ export class CatchupApiAdapter implements CatchupAdapter {
     const game = data.game || {};
     const gameId = String(game.id || '');
 
-    // Map ALL social posts
-    const socialPosts: TimelinePost[] = (data.social_posts || []).map((p) => {
-      const mediaType = normalizeMediaType(
-        p.media_type ?? null,
-        p.video_url ?? null,
-        p.image_url ?? null,
-      );
-      return {
-        id: String(p.id || ''),
-        gameId,
-        team: p.team_abbreviation || '',
-        postUrl: p.post_url || '',
-        tweetId: this.extractTweetId(p.post_url || ''),
-        postedAt: p.posted_at || '',
-        hasVideo: mediaType === 'video',
-        mediaType,
-        mediaTypeRaw: p.media_type ?? null,
-        videoUrl: p.video_url || '',
-        imageUrl: p.image_url || '',
-        sourceHandle: p.source_handle || '',
-        tweetText: p.tweet_text || '',
-      };
-    });
+    // Map social posts, filtering out empty ones (no media AND no text)
+    const socialPosts: TimelinePost[] = (data.social_posts || [])
+      .filter((p) => {
+        // Filter out posts with no content (no media and no text)
+        const hasText = Boolean(p.tweet_text?.trim());
+        const hasMedia = p.image_url || p.video_url || p.has_video;
+        return hasText || hasMedia;
+      })
+      .map((p) => {
+        const mediaType = normalizeMediaType(
+          p.media_type ?? null,
+          p.video_url ?? null,
+          p.image_url ?? null,
+          p.has_video ?? false,
+        );
+        return {
+          id: String(p.id || ''),
+          gameId,
+          team: p.team_abbreviation || '',
+          postUrl: p.post_url || '',
+          tweetId: this.extractTweetId(p.post_url || ''),
+          postedAt: p.posted_at || '',
+          hasVideo: mediaType === 'video',
+          mediaType,
+          mediaTypeRaw: p.media_type ?? null,
+          videoUrl: p.video_url || '',
+          imageUrl: p.image_url || '',
+          sourceHandle: p.source_handle || '',
+          tweetText: p.tweet_text || '',
+        };
+      });
 
     // Sort social posts by posted time (earliest first)
     const sortedPosts = [...socialPosts].sort(

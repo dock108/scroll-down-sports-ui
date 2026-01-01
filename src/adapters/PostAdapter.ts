@@ -23,6 +23,7 @@ export function normalizeMediaType(
   mediaType: string | null,
   videoUrl?: string | null,
   imageUrl?: string | null,
+  hasVideoFlag?: boolean,
 ): 'video' | 'image' | 'none' {
   if (mediaType === 'video') return 'video';
   if (mediaType === 'image') return 'image';
@@ -30,6 +31,8 @@ export function normalizeMediaType(
   const hasImage = Boolean(imageUrl);
   // When both URLs exist but there is no valid explicit backend mediaType, prefer video.
   if (hasVideo) return 'video';
+  // If has_video flag is true but no URL, still mark as video for proper fallback display
+  if (hasVideoFlag && !hasVideo) return 'video';
   if (hasImage) return 'image';
   return 'none';
 }
