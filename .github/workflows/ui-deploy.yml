@@ -46,7 +46,7 @@ jobs:
             VITE_USE_MOCK_ADAPTERS=false
 
       - name: Deploy on Hetzner
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USER }}
