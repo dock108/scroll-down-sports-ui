@@ -130,6 +130,44 @@
 }
 
 /* ========================================
+   SCORE CHIPS (between chapters)
+   ======================================== */
+.score-chip-divider {
+  margin: var(--space-lg) 0;
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.score-chip-divider__label {
+  font-size: var(--font-meta);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+
+.score-chip-divider__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.score-chip {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--color-surface);
+  font-size: var(--font-meta);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
    PBP ROWS (dense, readable)
    ======================================== */
 .pbp-row {
@@ -425,4 +463,3 @@
     gap: var(--space-md);
   }
 }
-

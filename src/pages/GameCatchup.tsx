@@ -9,6 +9,7 @@ import { GameOverview } from '../components/sections/GameOverview';
 import { TimelineDivider } from '../components/timeline/TimelineDivider';
 import { TimelineSection } from '../components/timeline/TimelineSection';
 import { CollapsibleSection } from '../components/timeline/CollapsibleSection';
+import { ScoreChips } from '../components/timeline/ScoreChips';
 import { XHighlight } from '../components/embeds/XHighlight';
 import {
   getGameAdapter,
@@ -50,6 +51,19 @@ const groupByPeriod = (timeline: TimelineEntry[]): Map<number, TimelineEntry[]> 
   }
 
   return groups;
+};
+
+const getScoreSnapshot = (entries: TimelineEntry[]) => {
+  for (let index = entries.length - 1; index >= 0; index -= 1) {
+    const entry = entries[index];
+    if (entry?.event.homeScore !== undefined && entry?.event.awayScore !== undefined) {
+      return {
+        homeScore: entry.event.homeScore,
+        awayScore: entry.event.awayScore,
+      };
+    }
+  }
+  return null;
 };
 
 /**
@@ -279,24 +293,36 @@ export const GameCatchup = () => {
         {hasTimeline ? (
           hasPeriodStructure ? (
             // Render each period in a collapsed section
-            sortedPeriods.map((period) => {
+            sortedPeriods.map((period, periodIndex) => {
               const entries = periodGroups.get(period) || [];
               const periodLabel = period > 4
                 ? (period === 5 ? 'Overtime' : `Overtime ${period - 4}`)
                 : ['', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter'][period] || `Period ${period}`;
-              
+              const scoreSnapshot = getScoreSnapshot(entries);
+              const shouldShowScore = Boolean(scoreSnapshot) && periodIndex < sortedPeriods.length - 1;
+
               return (
-                <CollapsibleSection
-                  key={`period-${period}`}
-                  title={periodLabel}
-                  icon="🏀"
-                  count={entries.length}
-                  defaultExpanded={false}
-                >
-                  {entries.map((entry, index) => (
-                    <TimelineSection key={entry.event.id} entry={entry} index={index} />
-                  ))}
-                </CollapsibleSection>
+                <div key={`period-${period}`}>
+                  <CollapsibleSection
+                    title={periodLabel}
+                    icon="🏀"
+                    count={entries.length}
+                    defaultExpanded={false}
+                  >
+                    {entries.map((entry, index) => (
+                      <TimelineSection key={entry.event.id} entry={entry} index={index} />
+                    ))}
+                  </CollapsibleSection>
+                  {shouldShowScore && scoreSnapshot && (
+                    <ScoreChips
+                      periodLabel={periodLabel}
+                      homeTeam={game.homeTeam || 'Home'}
+                      awayTeam={game.awayTeam || 'Away'}
+                      homeScore={scoreSnapshot.homeScore}
+                      awayScore={scoreSnapshot.awayScore}
+                    />
+                  )}
+                </div>
               );
             })
           ) : (
