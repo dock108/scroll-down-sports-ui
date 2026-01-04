@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import { ApiConnectionError, getPbpAdapter } from '../../adapters';
+import { ApiConnectionError, getAiSummaryAdapter, getPbpAdapter } from '../../adapters';
 import type { PbpEvent } from '../../adapters/PbpAdapter';
 import type { TimelineEntry } from '../../adapters/CatchupAdapter';
 import { XHighlight } from '../embeds/XHighlight';
@@ -25,6 +25,27 @@ const buildMetaLabel = (entry: TimelineEntry) => {
   return parts.join(' • ');
 };
 
+const SUMMARY_MAX_LENGTH = 200;
+const SUMMARY_FALLBACK = 'AI summary unavailable right now.';
+const SUMMARY_EMPTY = 'AI summary coming soon.';
+
+const redactScores = (value: string) =>
+  value
+    .replace(/\b\d{1,3}\s*[-–—]\s*\d{1,3}\b/g, 'score redacted')
+    .replace(/\b\d{1,3}\s+to\s+\d{1,3}\b/gi, 'score redacted')
+    .replace(/final score[^.]*\./gi, 'Final score redacted.');
+
+const formatSummary = (value: string) => {
+  const compact = redactScores(value.replace(/\s+/g, ' ').trim());
+  if (compact.length <= SUMMARY_MAX_LENGTH) {
+    return compact;
+  }
+  const slice = compact.slice(0, SUMMARY_MAX_LENGTH);
+  const cutoff = slice.lastIndexOf(' ');
+  const trimmed = cutoff > 80 ? slice.slice(0, cutoff) : slice;
+  return `${trimmed.trim()}…`;
+};
+
 export const ExpandableMomentCard = ({
   entry,
   index,
@@ -34,15 +55,24 @@ export const ExpandableMomentCard = ({
   const [pbpEvents, setPbpEvents] = useState<PbpEvent[] | null>(null);
   const [pbpError, setPbpError] = useState<string | null>(null);
   const [isPbpLoading, setIsPbpLoading] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [summaryError, setSummaryError] = useState(false);
+  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
   const contentId = useId();
   const pbpAdapter = useMemo(() => getPbpAdapter(), []);
+  const summaryAdapter = useMemo(() => getAiSummaryAdapter(), []);
   const metaLabel = useMemo(() => buildMetaLabel(entry), [entry]);
-  const summaryText = entry.event.description?.trim() || 'AI summary coming soon.';
   const hasHighlights = entry.highlights.length > 0;
   const hasPbpContent =
     (pbpEvents && pbpEvents.length > 0) ||
     entry.event.description ||
     entry.event.eventType !== 'highlight';
+
+  useEffect(() => {
+    setSummary(null);
+    setSummaryError(false);
+    setIsSummaryLoading(false);
+  }, [entry.momentId]);
 
   useEffect(() => {
     if (!isExpanded) return;
@@ -84,6 +114,42 @@ export const ExpandableMomentCard = ({
     };
   }, [entry.momentId, isExpanded, pbpAdapter]);
 
+  useEffect(() => {
+    if (!isExpanded || !entry.momentId || summary || isSummaryLoading) return;
+
+    let isActive = true;
+
+    const loadSummary = async () => {
+      setIsSummaryLoading(true);
+      setSummaryError(false);
+
+      try {
+        const response = await summaryAdapter.getSummaryForMoment(entry.momentId);
+        if (isActive) {
+          setSummary(response);
+        }
+      } catch {
+        if (isActive) {
+          setSummaryError(true);
+          setSummary(null);
+        }
+      } finally {
+        if (isActive) {
+          setIsSummaryLoading(false);
+        }
+      }
+    };
+
+    loadSummary();
+
+    return () => {
+      isActive = false;
+    };
+  }, [entry.momentId, isExpanded, isSummaryLoading, summary, summaryAdapter]);
+
+  const summaryText = summary ? formatSummary(summary) : null;
+  const summaryMessage = summaryError ? SUMMARY_FALLBACK : SUMMARY_EMPTY;
+
   return (
     <article className="moment-card">
       <button
@@ -110,7 +176,14 @@ export const ExpandableMomentCard = ({
         <div className="moment-card__inner">
           <section className="moment-card__section">
             <h3 className="moment-card__section-title">AI summary</h3>
-            <p className="moment-card__summary">{summaryText}</p>
+            {isSummaryLoading && !summaryText ? (
+              <div className="moment-card__summary-loading" aria-label="Loading summary">
+                <span className="moment-card__summary-bar" />
+                <span className="moment-card__summary-bar moment-card__summary-bar--short" />
+              </div>
+            ) : (
+              <p className="moment-card__summary">{summaryText || summaryMessage}</p>
+            )}
           </section>
 
           <section className="moment-card__section">

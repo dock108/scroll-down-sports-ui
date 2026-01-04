@@ -13,6 +13,10 @@ export type { SocialPostAdapter, GameSocialPost } from './SocialPostAdapter';
 export { getPbpAdapter } from './PbpAdapter';
 export type { PbpAdapter, PbpEvent } from './PbpAdapter';
 
+// AI summary adapter exports
+export { getAiSummaryAdapter } from './AiSummaryAdapter';
+export type { AiSummaryAdapter } from './AiSummaryAdapter';
+
 // Catchup adapter exports (integrated timeline)
 export { getCatchupAdapter } from './CatchupAdapter';
 export type {

@@ -114,6 +114,32 @@
   color: var(--color-text);
 }
 
+.moment-card__summary-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.moment-card__summary-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-border-light);
+  overflow: hidden;
+  position: relative;
+}
+
+.moment-card__summary-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: summary-shimmer 1.4s ease-in-out infinite;
+}
+
+.moment-card__summary-bar--short {
+  width: 70%;
+}
+
 .moment-card__pbp-list {
   display: flex;
   flex-direction: column;
@@ -504,4 +530,13 @@
 
 .collapsible-section__content {
   padding: var(--space-md) 0;
+}
+
+@keyframes summary-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
