@@ -25,6 +25,16 @@ MVP or Permanent: Permanent
 Classification: PERMANENT_CONFIG
 Notes: `getAppVersion()` returns `dev` when unset.
 
+### VITE_ENABLE_PREVIEW_SCORES
+Flag Name: `VITE_ENABLE_PREVIEW_SCORES`
+File / Location: `.env`, `.env.example`
+Default Value: `false`
+Env Overrides: `import.meta.env.VITE_ENABLE_PREVIEW_SCORES` (build-time)
+Purpose: Enables preview score display for environments that should allow early score visibility.
+MVP or Permanent: MVP
+Classification: FEATURE_FLAG
+Notes: Set to `true` to allow preview scores in builds where spoiler controls permit it.
+
 ### Pre-Game / Timeline / Post-Game Collapsible Sections
 Flag Name: `defaultExpanded` (Collapsible section expansion state)
 File / Location: `src/components/timeline/CollapsibleSection.tsx`, `src/pages/GameCatchup.tsx`
