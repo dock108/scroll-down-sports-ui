@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GameSummary } from '../adapters/GameAdapter';
 import { getGameAdapter, ApiConnectionError } from '../adapters';
 import { DataError } from '../components/feedback/DataError';
+import { GamePreviewDetails } from '../components/games/GamePreviewDetails';
 import { PageLayout } from '../components/layout/PageLayout';
 
 const getDateLabel = (value?: string) => {
@@ -146,29 +147,38 @@ export const GameList = () => {
           ))
         ) : games.length ? (
           games.map((game) => (
-            <Link
+            <div
               key={game.id}
-              to={`/game/${game.id}`}
-              className="block w-full text-left py-4 border-b border-gray-200 transition hover:bg-gray-50"
+              className="group border-b border-gray-200 py-4 transition hover:bg-gray-50"
             >
-              <div className="font-medium">
-                {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <Link
+                  to={`/game/${game.id}`}
+                  className="block flex-1 min-w-0 text-left transition group-hover:text-gray-900 sm:pr-4"
+                >
+                  <div className="font-medium">
+                    {game.awayTeam || 'Away'} at {game.homeTeam || 'Home'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {getDateLabel(game.date)} — {game.venue ?? 'Venue TBD'}
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {scoreChips.map((chip) => (
+                      <span
+                        key={chip.label}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.16em] ${chip.className}`}
+                      >
+                        <span className="text-[0.6rem]">{chip.label}</span>
+                        <span className="text-[0.75rem]">{chip.value}</span>
+                      </span>
+                    ))}
+                  </div>
+                </Link>
+                <div className="flex shrink-0 justify-start sm:justify-end">
+                  <GamePreviewDetails gameId={game.id} />
+                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                {getDateLabel(game.date)} — {game.venue ?? 'Venue TBD'}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {scoreChips.map((chip) => (
-                  <span
-                    key={chip.label}
-                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.16em] ${chip.className}`}
-                  >
-                    <span className="text-[0.6rem]">{chip.label}</span>
-                    <span className="text-[0.75rem]">{chip.value}</span>
-                  </span>
-                ))}
-              </div>
-            </Link>
+            </div>
           ))
         ) : (
           <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-gray-500">
