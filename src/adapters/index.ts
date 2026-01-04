@@ -26,3 +26,6 @@ export type {
   CatchupFinalDetails,
   TimelineEntry,
 } from './CatchupAdapter';
+
+// Game preview adapter exports
+export { fetchGamePreview } from './GamePreviewAdapter';
