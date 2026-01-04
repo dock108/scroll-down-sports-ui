@@ -17,6 +17,13 @@ For deeper intent and principles, see [`project-intent.md`](project-intent.md).
 - Custom X/Twitter embeds for highlights with images and text.
 - Player and team stats revealed after scrolling through the timeline.
 
+## Score and data context
+
+- **What scores mean:** Scores represent the curated recap outcome shown after users opt in to reveal results.
+- **Not predictions:** Scores are not forecasts or betting guidance; they only summarize completed game results.
+- **Pregame context only:** Any content shown before the reveal is intended for context and hype, not outcome hints.
+- **Roadmap for real data hookups:** We plan to replace placeholder values with live, validated feeds as data integrations mature.
+
 ## Roadmap
 
 1. Improve social post matching with accurate game start times.
