@@ -1,4 +1,6 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
+import { ApiConnectionError, getPbpAdapter } from '../../adapters';
+import type { PbpEvent } from '../../adapters/PbpAdapter';
 import type { TimelineEntry } from '../../adapters/CatchupAdapter';
 import { XHighlight } from '../embeds/XHighlight';
 import { PbpEventRow } from './PbpEventRow';
@@ -29,11 +31,58 @@ export const ExpandableMomentCard = ({
   showPbpScore = false,
 }: ExpandableMomentCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [pbpEvents, setPbpEvents] = useState<PbpEvent[] | null>(null);
+  const [pbpError, setPbpError] = useState<string | null>(null);
+  const [isPbpLoading, setIsPbpLoading] = useState(false);
   const contentId = useId();
+  const pbpAdapter = useMemo(() => getPbpAdapter(), []);
   const metaLabel = useMemo(() => buildMetaLabel(entry), [entry]);
   const summaryText = entry.event.description?.trim() || 'AI summary coming soon.';
   const hasHighlights = entry.highlights.length > 0;
-  const hasPbpContent = entry.event.description || entry.event.eventType !== 'highlight';
+  const hasPbpContent =
+    (pbpEvents && pbpEvents.length > 0) ||
+    entry.event.description ||
+    entry.event.eventType !== 'highlight';
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    let isActive = true;
+
+    const loadMomentPbp = async () => {
+      if (!entry.momentId) return;
+      setIsPbpLoading(true);
+      setPbpError(null);
+
+      try {
+        const events = await pbpAdapter.getEventsForMoment(entry.momentId);
+        if (isActive) {
+          setPbpEvents(events);
+        }
+      } catch (error) {
+        if (isActive) {
+          const message =
+            error instanceof ApiConnectionError
+              ? error.message
+              : 'Unable to load play-by-play details.';
+          setPbpError(message);
+          setPbpEvents([]);
+        }
+      } finally {
+        if (isActive) {
+          setIsPbpLoading(false);
+        }
+      }
+    };
+
+    loadMomentPbp();
+    const interval = window.setInterval(loadMomentPbp, 15000);
+
+    return () => {
+      isActive = false;
+      window.clearInterval(interval);
+    };
+  }, [entry.momentId, isExpanded, pbpAdapter]);
 
   return (
     <article className="moment-card">
@@ -66,9 +115,19 @@ export const ExpandableMomentCard = ({
 
           <section className="moment-card__section">
             <h3 className="moment-card__section-title">PBP list</h3>
-            {hasPbpContent ? (
+            {isPbpLoading && !pbpEvents?.length ? (
+              <p className="moment-card__empty">Loading play-by-play...</p>
+            ) : pbpError ? (
+              <p className="moment-card__empty">{pbpError}</p>
+            ) : hasPbpContent ? (
               <div className="moment-card__pbp-list">
-                <PbpEventRow event={entry.event} showScore={showPbpScore} />
+                {(pbpEvents && pbpEvents.length > 0 ? pbpEvents : [entry.event]).map((event) => (
+                  <PbpEventRow
+                    key={`${entry.momentId}-${event.id}-${event.elapsedSeconds}`}
+                    event={event}
+                    showScore={showPbpScore}
+                  />
+                ))}
               </div>
             ) : (
               <p className="moment-card__empty">No play-by-play details yet.</p>

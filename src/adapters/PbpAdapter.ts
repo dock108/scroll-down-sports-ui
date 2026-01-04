@@ -46,6 +46,7 @@ type ApiPbpResponse = {
 
 export interface PbpAdapter {
   getEventsForGame(gameId: string): Promise<PbpEvent[]>;
+  getEventsForMoment(momentId: string): Promise<PbpEvent[]>;
 }
 
 /**
@@ -77,12 +78,39 @@ export class PbpApiAdapter implements PbpAdapter {
     }
   }
 
-  private async fetchJson<T>(url: string): Promise<T> {
+  async getEventsForMoment(momentId: string): Promise<PbpEvent[]> {
+    if (!momentId) {
+      logger.warn('PbpApiAdapter: moment id missing.');
+      return [];
+    }
+
+    try {
+      const data = await this.fetchJson<ApiPbpResponse>(
+        `${getApiBase()}/compact/${momentId}/pbp`,
+        { cache: 'no-store' },
+      );
+
+      return (data.events || []).map(this.mapEvent);
+    } catch (error) {
+      if (error instanceof ApiConnectionError) {
+        throw error;
+      }
+      logger.warn('PbpApiAdapter: failed to load moment events.', { error: String(error) });
+      return [];
+    }
+  }
+
+  private async fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
     let response: Response;
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(init.headers || {}),
+    };
 
     try {
       response = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
+        ...init,
+        headers,
       });
     } catch {
       throw new ApiConnectionError('Unable to connect to PBP API. Is the server running?');
@@ -115,4 +143,3 @@ export class PbpApiAdapter implements PbpAdapter {
 export function getPbpAdapter(): PbpAdapter {
   return new PbpApiAdapter();
 }
-

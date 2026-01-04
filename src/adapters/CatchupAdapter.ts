@@ -23,6 +23,7 @@ const getApiBase = () => getApiBaseUrl() || 'http://localhost:8000';
 export interface TimelineEntry {
   event: PbpEvent;
   highlights: TimelinePost[];
+  momentId: string;
 }
 
 /**
@@ -74,6 +75,9 @@ type ApiGameResponse = ApiGameDetailResponse & {
 // Re-export for internal use - these now come from generated types
 type ApiSocialPost = SocialPostEntry;
 type ApiPbpEvent = PlayEntry;
+type ApiPbpEventWithMoment = ApiPbpEvent & {
+  moment_id?: string | number;
+};
 
 export interface CatchupAdapter {
   getCatchupForGame(gameId: string): Promise<CatchupResponse | null>;
@@ -180,7 +184,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
 
 
     // Convert ALL PBP events to timeline entries
-    const pbpEvents = data.plays || [];
+    const pbpEvents: ApiPbpEventWithMoment[] = data.plays || [];
     const timeline: TimelineEntry[] = pbpEvents.map((e, index) => ({
       event: {
         id: `pbp-${e.play_index ?? index}`,
@@ -196,6 +200,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
         awayScore: e.away_score ?? undefined,
       },
       highlights: [],
+      momentId: String(e.moment_id ?? e.play_index ?? index),
     }));
 
     // Distribute in-game posts proportionally across timeline
