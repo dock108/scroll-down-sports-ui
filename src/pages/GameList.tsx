@@ -31,6 +31,19 @@ const parseQueryDate = (value?: string | null) => {
   return parsed;
 };
 
+const scoreChips = [
+  {
+    label: 'Excitement',
+    value: 84,
+    className: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+  },
+  {
+    label: 'Quality',
+    value: 91,
+    className: 'border-sky-100 bg-sky-50 text-sky-700',
+  },
+];
+
 export const GameList = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -143,6 +156,17 @@ export const GameList = () => {
               </div>
               <div className="text-sm text-gray-600">
                 {getDateLabel(game.date)} — {game.venue ?? 'Venue TBD'}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {scoreChips.map((chip) => (
+                  <span
+                    key={chip.label}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.16em] ${chip.className}`}
+                  >
+                    <span className="text-[0.6rem]">{chip.label}</span>
+                    <span className="text-[0.75rem]">{chip.value}</span>
+                  </span>
+                ))}
               </div>
             </Link>
           ))
