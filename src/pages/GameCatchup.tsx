@@ -20,6 +20,37 @@ import {
 } from '../adapters';
 import type { CatchupResponse, TimelineEntry } from '../adapters/CatchupAdapter';
 
+type ResumeData = {
+  scrollY: number;
+  statsRevealed: boolean;
+  updatedAt: number;
+};
+
+const RESUME_STORAGE_PREFIX = 'sds-resume-scroll-';
+const RESUME_DISMISS_PREFIX = 'sds-resume-dismissed-';
+const RESUME_SCROLL_THRESHOLD = 200;
+const RESUME_SAVE_DEBOUNCE_MS = 200;
+
+const getResumeStorageKey = (gameId: string) => `${RESUME_STORAGE_PREFIX}${gameId}`;
+const getResumeDismissKey = (gameId: string) => `${RESUME_DISMISS_PREFIX}${gameId}`;
+
+const parseResumeData = (value: string | null): ResumeData | null => {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as ResumeData;
+    if (
+      typeof parsed.scrollY === 'number' &&
+      typeof parsed.statsRevealed === 'boolean' &&
+      typeof parsed.updatedAt === 'number'
+    ) {
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+};
+
 const formatGameDate = (value?: string) => {
   if (!value) {
     return 'Date TBD';
@@ -116,6 +147,8 @@ export const GameCatchup = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [statsRevealed, setStatsRevealed] = useState(false);
   const [activePeriod, setActivePeriod] = useState<number | null>(null);
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -128,6 +161,7 @@ export const GameCatchup = () => {
   // Trigger auto-reveal once the reader scrolls past the timeline
   const statsRevealTriggerRef = useRef<HTMLDivElement | null>(null);
   const periodRefs = useRef<Map<number, HTMLDivElement | null>>(new Map());
+  const resumeSaveTimeoutRef = useRef<number | null>(null);
 
   // Create adapters
   const gameAdapter = useMemo(() => getGameAdapter(), []);
@@ -178,6 +212,27 @@ export const GameCatchup = () => {
     };
   }, [catchupAdapter, gameId, retryCount]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !gameId) return;
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, [gameId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !gameId || isLoading) return;
+    try {
+      const stored = window.localStorage.getItem(getResumeStorageKey(gameId));
+      const dismissed = window.sessionStorage.getItem(getResumeDismissKey(gameId)) === 'true';
+      const parsed = parseResumeData(stored);
+      setResumeData(parsed);
+      setShowResumePrompt(Boolean(parsed && parsed.scrollY >= RESUME_SCROLL_THRESHOLD && !dismissed));
+    } catch {
+      setResumeData(null);
+      setShowResumePrompt(false);
+    }
+  }, [gameId, isLoading]);
+
   // Auto-reveal stats only after the timeline is finished to avoid spoilers
   useEffect(() => {
     if (statsRevealed || !statsRevealTriggerRef.current) return;
@@ -207,8 +262,63 @@ export const GameCatchup = () => {
     }
   }, [isCompactMode]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !gameId) return;
+
+    const saveResumeData = () => {
+      try {
+        const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+        const scrollY = Math.min(Math.max(window.scrollY, 0), maxScroll);
+        const nextData: ResumeData = {
+          scrollY,
+          statsRevealed,
+          updatedAt: Date.now(),
+        };
+        window.localStorage.setItem(getResumeStorageKey(gameId), JSON.stringify(nextData));
+        setResumeData(nextData);
+      } catch {
+        return;
+      }
+    };
+
+    const handleScroll = () => {
+      if (resumeSaveTimeoutRef.current) {
+        window.clearTimeout(resumeSaveTimeoutRef.current);
+      }
+      resumeSaveTimeoutRef.current = window.setTimeout(saveResumeData, RESUME_SAVE_DEBOUNCE_MS);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (resumeSaveTimeoutRef.current) {
+        window.clearTimeout(resumeSaveTimeoutRef.current);
+      }
+    };
+  }, [gameId, statsRevealed]);
+
   const handleRetry = () => {
     setRetryCount((c) => c + 1);
+  };
+
+  const handleResume = () => {
+    if (!resumeData || typeof window === 'undefined') return;
+    setShowResumePrompt(false);
+    setStatsRevealed(resumeData.statsRevealed);
+    const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+    const targetScroll = Math.min(resumeData.scrollY, maxScroll);
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+  };
+
+  const handleDismissResume = () => {
+    if (typeof window === 'undefined' || !gameId) return;
+    setShowResumePrompt(false);
+    try {
+      window.sessionStorage.setItem(getResumeDismissKey(gameId), 'true');
+    } catch {
+      return;
+    }
   };
 
   // Group timeline by period for rendering
@@ -319,6 +429,20 @@ export const GameCatchup = () => {
       <Link className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4 inline-block" to="/games">
         ← Back to games
       </Link>
+
+      {showResumePrompt && (
+        <div className="resume-banner" role="status" aria-live="polite">
+          <p className="resume-banner__text">Resume where you left off?</p>
+          <div className="resume-banner__actions">
+            <button type="button" className="resume-banner__button" onClick={handleResume}>
+              Resume
+            </button>
+            <button type="button" className="resume-banner__button resume-banner__button--ghost" onClick={handleDismissResume}>
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 1. HEADER - Game Details (spoiler-safe) */}
       <GameHeader
