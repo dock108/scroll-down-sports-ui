@@ -10,6 +10,7 @@ import { TimelineDivider } from '../components/timeline/TimelineDivider';
 import { TimelineSection } from '../components/timeline/TimelineSection';
 import { CollapsibleSection } from '../components/timeline/CollapsibleSection';
 import { ScoreChips } from '../components/timeline/ScoreChips';
+import { TimelineSkeleton } from '../components/timeline/TimelineSkeleton';
 import { XHighlight } from '../components/embeds/XHighlight';
 import {
   getGameAdapter,
@@ -18,126 +19,20 @@ import {
   getCatchupAdapter,
   ApiConnectionError,
 } from '../adapters';
-import type { CatchupResponse, TimelineEntry } from '../adapters/CatchupAdapter';
-
-type ResumeData = {
-  scrollY: number;
-  statsRevealed: boolean;
-  updatedAt: number;
-};
-
-const RESUME_STORAGE_PREFIX = 'sds-resume-scroll-';
-const RESUME_DISMISS_PREFIX = 'sds-resume-dismissed-';
-const RESUME_SCROLL_THRESHOLD = 200;
-const RESUME_SAVE_DEBOUNCE_MS = 200;
-
-const getResumeStorageKey = (gameId: string) => `${RESUME_STORAGE_PREFIX}${gameId}`;
-const getResumeDismissKey = (gameId: string) => `${RESUME_DISMISS_PREFIX}${gameId}`;
-
-const parseResumeData = (value: string | null): ResumeData | null => {
-  if (!value) return null;
-  try {
-    const parsed = JSON.parse(value) as ResumeData;
-    if (
-      typeof parsed.scrollY === 'number' &&
-      typeof parsed.statsRevealed === 'boolean' &&
-      typeof parsed.updatedAt === 'number'
-    ) {
-      return parsed;
-    }
-  } catch {
-    return null;
-  }
-  return null;
-};
-
-const formatGameDate = (value?: string) => {
-  if (!value) {
-    return 'Date TBD';
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return parsed.toLocaleString(undefined, {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-};
-
-/**
- * Groups timeline entries by period for rendering period dividers
- */
-const groupByPeriod = (timeline: TimelineEntry[]): Map<number, TimelineEntry[]> => {
-  const groups = new Map<number, TimelineEntry[]>();
-
-  for (const entry of timeline) {
-    const period = entry.event.period || 0;
-    const existing = groups.get(period) || [];
-    existing.push(entry);
-    groups.set(period, existing);
-  }
-
-  return groups;
-};
-
-const getScoreSnapshot = (entries: TimelineEntry[]) => {
-  for (let index = entries.length - 1; index >= 0; index -= 1) {
-    const entry = entries[index];
-    if (entry?.event.homeScore !== undefined && entry?.event.awayScore !== undefined) {
-      return {
-        homeScore: entry.event.homeScore,
-        awayScore: entry.event.awayScore,
-      };
-    }
-  }
-  return null;
-};
-
-const getPeriodLabel = (period: number) => {
-  if (period > 4) {
-    return period === 5 ? 'Overtime' : `Overtime ${period - 4}`;
-  }
-
-  return ['', '1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter'][period] || `Period ${period}`;
-};
-
-const getPeriodShortLabel = (period: number) => {
-  if (period > 4) {
-    return period === 5 ? 'OT' : `OT${period - 4}`;
-  }
-
-  return period ? `Q${period}` : 'Period';
-};
-
-/**
- * Loading skeleton for the timeline
- */
-const TimelineSkeleton = () => (
-  <div className="timeline-skeleton">
-    {Array.from({ length: 3 }, (_, index) => (
-      <div key={`skeleton-${index}`} className="timeline-skeleton__section">
-        <div className="timeline-skeleton__highlight">
-          <div className="timeline-skeleton__media" aria-hidden="true" />
-          <div className="timeline-skeleton__caption">
-            <div className="timeline-skeleton__bar" />
-            <div className="timeline-skeleton__bar timeline-skeleton__bar--short" />
-          </div>
-        </div>
-        <div className="timeline-skeleton__event">
-          <div className="timeline-skeleton__time" />
-          <div className="timeline-skeleton__text">
-            <div className="timeline-skeleton__line" />
-            <div className="timeline-skeleton__line timeline-skeleton__line--short" />
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
+import type { CatchupResponse } from '../adapters/CatchupAdapter';
+import {
+  RESUME_SAVE_DEBOUNCE_MS,
+  RESUME_SCROLL_THRESHOLD,
+  formatGameDate,
+  getPeriodLabel,
+  getPeriodShortLabel,
+  getResumeDismissKey,
+  getResumeStorageKey,
+  getScoreSnapshot,
+  groupByPeriod,
+  parseResumeData,
+} from './GameCatchupUtils';
+import type { ResumeData } from './GameCatchupUtils';
 
 export const GameCatchup = () => {
   const { gameId } = useParams();

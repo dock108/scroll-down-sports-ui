@@ -11,8 +11,6 @@ import type {
   GameMeta,
   SocialPostEntry,
   PlayEntry,
-  TeamStat as ApiTeamStat,
-  PlayerStat as ApiPlayerStat,
 } from '../generated';
 
 const getApiBase = () => getApiBaseUrl() || 'http://localhost:8000';
