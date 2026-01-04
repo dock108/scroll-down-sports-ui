@@ -41,6 +41,7 @@ type ApiSocialPost = {
   image_url?: string;
   source_handle?: string;
   tweet_text?: string;
+  contains_score?: boolean;
 };
 export interface SocialPostAdapter {
   getPostsForGame(gameId: string): Promise<TimelinePost[]>;
@@ -108,6 +109,7 @@ export class SocialPostApiAdapter implements SocialPostAdapter {
       imageUrl: String(post.image_url || ''),
       sourceHandle: String(post.source_handle || ''),
       tweetText: String(post.tweet_text || ''),
+      containsScore: post.contains_score ?? false,
     };
   }
 }

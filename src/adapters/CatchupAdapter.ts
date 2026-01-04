@@ -78,6 +78,9 @@ type ApiPbpEvent = PlayEntry;
 type ApiPbpEventWithMoment = ApiPbpEvent & {
   moment_id?: string | number;
 };
+type ApiSocialPostWithSpoiler = ApiSocialPost & {
+  contains_score?: boolean | null;
+};
 
 export interface CatchupAdapter {
   getCatchupForGame(gameId: string): Promise<CatchupResponse | null>;
@@ -145,6 +148,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
         return hasText || hasMedia;
       })
       .map((p) => {
+        const postWithSpoiler = p as ApiSocialPostWithSpoiler;
         const mediaType = normalizeMediaType(
           p.media_type ?? null,
           p.video_url ?? null,
@@ -165,6 +169,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
           imageUrl: p.image_url || '',
           sourceHandle: p.source_handle || '',
           tweetText: p.tweet_text || '',
+          containsScore: postWithSpoiler.contains_score ?? false,
         };
       });
 

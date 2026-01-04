@@ -66,14 +66,16 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaFailed, setMediaFailed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSpoilerRevealed, setIsSpoilerRevealed] = useState(!post.containsScore);
 
   const mediaType: MediaType = post.mediaType;
 
   const handle = normalizeHandle(post.sourceHandle, post.postUrl);
   const rawText = post.tweetText.trim();
-  const spoilerSafeText = applySpoilerFilter(rawText);
+  const spoilerSafeText = post.containsScore ? rawText : applySpoilerFilter(rawText);
   const hasCaptionText = Boolean(spoilerSafeText);
   const shouldClamp = hasCaptionText && spoilerSafeText.length > CAPTION_MAX_CHARS;
+  const spoilerHidden = Boolean(post.containsScore) && !isSpoilerRevealed;
 
   useEffect(() => {
     if (!mediaRef.current) return;
@@ -96,6 +98,10 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
     setMediaLoaded(false);
     setMediaFailed(false);
   }, [post.id, post.videoUrl, post.imageUrl, mediaType]);
+
+  useEffect(() => {
+    setIsSpoilerRevealed(!post.containsScore);
+  }, [post.id, post.containsScore]);
 
   useEffect(() => {
     const rawValue = post.mediaTypeRaw;
@@ -161,9 +167,67 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const cardClasses = [
     'x-highlight__card',
     mediaType === 'none' ? 'x-highlight__card--caption-only' : '',
+    spoilerHidden ? 'x-highlight__card--spoiler-hidden' : '',
   ]
     .filter(Boolean)
     .join(' ');
+
+  const cardBody = (
+    <div className="x-highlight__card-body" aria-hidden={spoilerHidden}>
+      {mediaType !== 'none' ? (
+        <div ref={mediaRef} className="x-highlight__media">
+          {showSkeleton ? <div className="x-highlight__media-skeleton" aria-hidden="true" /> : null}
+          {showFallback ? (
+            <div className="x-highlight__fallback">
+              <p>
+                {mediaType === 'video'
+                  ? 'Clip unavailable'
+                  : mediaType === 'image'
+                  ? 'Image unavailable'
+                  : 'Media unavailable'}{' '}
+                —{' '}
+                {post.postUrl ? (
+                  <a href={post.postUrl} target="_blank" rel="noopener noreferrer">
+                    view post on X
+                  </a>
+                ) : (
+                  'view post on X'
+                )}
+              </p>
+            </div>
+          ) : null}
+          {needsTwitterEmbed && isInView ? (
+            <TwitterEmbed tweetUrl={post.postUrl} tweetId={post.tweetId} />
+          ) : null}
+          {shouldLoadMedia && hasVideoUrl ? (
+            <video
+              className="x-highlight__video"
+              controls
+              playsInline
+              preload="metadata"
+              poster={post.imageUrl || undefined}
+              onLoadedData={() => setMediaLoaded(true)}
+              onError={() => setMediaFailed(true)}
+            >
+              <source src={post.videoUrl} type="video/mp4" />
+            </video>
+          ) : null}
+          {shouldLoadMedia && !hasVideoUrl && hasImage ? (
+            <img
+              className="x-highlight__image"
+              src={post.imageUrl}
+              alt={hasCaptionText ? spoilerSafeText : `X post from ${handle}`}
+              loading="lazy"
+              decoding="async"
+              onLoad={() => setMediaLoaded(true)}
+              onError={() => setMediaFailed(true)}
+            />
+          ) : null}
+        </div>
+      ) : null}
+      {captionContent}
+    </div>
+  );
 
   return (
     <article className="x-highlight">
@@ -172,58 +236,22 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
         <span>Official Team Post</span>
       </div>
       <div className={cardClasses}>
-        {mediaType !== 'none' ? (
-          <div ref={mediaRef} className="x-highlight__media">
-            {showSkeleton ? <div className="x-highlight__media-skeleton" aria-hidden="true" /> : null}
-            {showFallback ? (
-              <div className="x-highlight__fallback">
-                <p>
-                  {mediaType === 'video'
-                    ? 'Clip unavailable'
-                    : mediaType === 'image'
-                    ? 'Image unavailable'
-                    : 'Media unavailable'}{' '}
-                  —{' '}
-                  {post.postUrl ? (
-                    <a href={post.postUrl} target="_blank" rel="noopener noreferrer">
-                      view post on X
-                    </a>
-                  ) : (
-                    'view post on X'
-                  )}
-                </p>
-              </div>
-            ) : null}
-            {needsTwitterEmbed && isInView ? (
-              <TwitterEmbed tweetUrl={post.postUrl} tweetId={post.tweetId} />
-            ) : null}
-            {shouldLoadMedia && hasVideoUrl ? (
-              <video
-                className="x-highlight__video"
-                controls
-                playsInline
-                preload="metadata"
-                poster={post.imageUrl || undefined}
-                onLoadedData={() => setMediaLoaded(true)}
-                onError={() => setMediaFailed(true)}
-              >
-                <source src={post.videoUrl} type="video/mp4" />
-              </video>
-            ) : null}
-            {shouldLoadMedia && !hasVideoUrl && hasImage ? (
-              <img
-                className="x-highlight__image"
-                src={post.imageUrl}
-                alt={hasCaptionText ? spoilerSafeText : `X post from ${handle}`}
-                loading="lazy"
-                decoding="async"
-                onLoad={() => setMediaLoaded(true)}
-                onError={() => setMediaFailed(true)}
-              />
-            ) : null}
+        {cardBody}
+        {spoilerHidden ? (
+          <div className="x-highlight__spoiler-overlay">
+            <span className="x-highlight__spoiler-pill">Score hidden</span>
+            <button
+              type="button"
+              className="x-highlight__spoiler-button"
+              onClick={() => setIsSpoilerRevealed(true)}
+            >
+              Reveal score
+            </button>
+            <span className="sr-only">
+              Spoiler hidden. Activate the reveal button to show the score.
+            </span>
           </div>
         ) : null}
-        {captionContent}
       </div>
     </article>
   );

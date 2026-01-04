@@ -12,6 +12,7 @@ export interface TimelinePost {
   imageUrl: string;
   sourceHandle: string;
   tweetText: string;
+  containsScore?: boolean;
 }
 
 export interface PostAdapter {
