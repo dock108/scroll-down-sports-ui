@@ -148,6 +148,7 @@ export const GamePreviewDetails = ({ gameId }: GamePreviewDetailsProps) => {
 
   const tags = preview?.tags ?? [];
   const showTags = status === 'loaded' && tags.length > 0;
+  const isLoading = status === 'loading';
 
   return (
     <div
@@ -186,7 +187,16 @@ export const GamePreviewDetails = ({ gameId }: GamePreviewDetailsProps) => {
               ×
             </button>
           </div>
-          <p className="mt-2 text-sm text-slate-700">{nuggetContent}</p>
+          {isLoading ? (
+            <div className="mt-3 space-y-2 animate-pulse" aria-label={LOADING_MESSAGE}>
+              <span className="sr-only">{LOADING_MESSAGE}</span>
+              <div className="h-3 w-5/6 rounded-full bg-slate-200" />
+              <div className="h-3 w-4/6 rounded-full bg-slate-200" />
+              <div className="h-3 w-3/5 rounded-full bg-slate-200" />
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-slate-700">{nuggetContent}</p>
+          )}
           <div className="mt-3">
             <p className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-slate-400">
               {TAGS_LABEL}
@@ -202,6 +212,12 @@ export const GamePreviewDetails = ({ gameId }: GamePreviewDetailsProps) => {
                   </li>
                 ))}
               </ul>
+            ) : isLoading ? (
+              <div className="mt-2 flex flex-wrap gap-2 animate-pulse" aria-hidden="true">
+                <div className="h-6 w-16 rounded-full bg-slate-200" />
+                <div className="h-6 w-20 rounded-full bg-slate-200" />
+                <div className="h-6 w-12 rounded-full bg-slate-200" />
+              </div>
             ) : (
               <p className="mt-2 text-xs text-slate-500">
                 {status === 'loading' ? LOADING_MESSAGE : EMPTY_TAGS_MESSAGE}
