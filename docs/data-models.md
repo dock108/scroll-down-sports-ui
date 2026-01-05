@@ -68,7 +68,7 @@ The `CatchupApiAdapter` transforms the API response into a frontend-friendly for
 
 ```typescript
 interface CatchupResponse {
-  game: CatchupGameHeader; // Spoiler-safe header (no score)
+  game: CatchupGameHeader; // Header without score (score revealed at end)
   preGamePosts: TimelinePost[]; // First 20% of posts chronologically
   timeline: TimelineEntry[]; // PBP events + distributed highlights
   postGamePosts: TimelinePost[]; // Planned: post-game tweets once timestamps are reliable

@@ -307,7 +307,7 @@ export const FinalStats = ({
           </div>
         )}
 
-        {/* Final score appears last to preserve the spoiler-safe flow. */}
+        {/* Final score appears last to preserve the paced reveal flow. */}
         <div className={`rounded-2xl border border-gray-200 bg-gray-50 mb-8 ${finalScorePadding}`}>
           <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4">Final Score</p>
           <div className="flex items-center justify-between py-2 border-b border-gray-200">

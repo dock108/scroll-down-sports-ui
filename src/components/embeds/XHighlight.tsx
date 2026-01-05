@@ -4,9 +4,9 @@ import { TwitterEmbed } from './TwitterEmbed';
 
 type MediaType = 'video' | 'image' | 'none';
 
-// Heuristic pattern for spoiler scores, e.g. "102-98" or "120 - 115".
+// Heuristic pattern for score detection, e.g. "102-98" or "120 - 115".
 // Note: This may occasionally match non-score digit ranges, which is acceptable
-// for our spoiler-filter use case. If we need stricter detection in the future,
+// for our score-filter use case. If we need stricter detection in the future,
 // we can refine this to include more contextual cues (team names, sport keywords, etc.).
 const SCORE_PATTERN = /\b\d{2,3}\s*-\s*\d{2,3}\b/;
 const CAPTION_MAX_CHARS = 140;
@@ -36,7 +36,7 @@ const normalizeHandle = (handle: string, postUrl: string) => {
   return fromUrl || 'x';
 };
 
-const applySpoilerFilter = (text: string) => {
+const applyScoreFilter = (text: string) => {
   const match = text.match(SCORE_PATTERN);
   if (!match || match.index === undefined) return text;
   const trimmed = text.slice(0, match.index).trimEnd();
@@ -66,16 +66,16 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaFailed, setMediaFailed] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isSpoilerRevealed, setIsSpoilerRevealed] = useState(!post.containsScore);
+  const [isScoreRevealed, setIsScoreRevealed] = useState(!post.containsScore);
 
   const mediaType: MediaType = post.mediaType;
 
   const handle = normalizeHandle(post.sourceHandle, post.postUrl);
   const rawText = post.tweetText.trim();
-  const spoilerSafeText = post.containsScore ? rawText : applySpoilerFilter(rawText);
-  const hasCaptionText = Boolean(spoilerSafeText);
-  const shouldClamp = hasCaptionText && spoilerSafeText.length > CAPTION_MAX_CHARS;
-  const spoilerHidden = Boolean(post.containsScore) && !isSpoilerRevealed;
+  const filteredText = post.containsScore ? rawText : applyScoreFilter(rawText);
+  const hasCaptionText = Boolean(filteredText);
+  const shouldClamp = hasCaptionText && filteredText.length > CAPTION_MAX_CHARS;
+  const scoreHidden = Boolean(post.containsScore) && !isScoreRevealed;
 
   useEffect(() => {
     if (!mediaRef.current) return;
@@ -100,7 +100,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   }, [post.id, post.videoUrl, post.imageUrl, mediaType]);
 
   useEffect(() => {
-    setIsSpoilerRevealed(!post.containsScore);
+    setIsScoreRevealed(!post.containsScore);
   }, [post.id, post.containsScore]);
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
       <span className="x-highlight__caption-handle">
         <XIcon />@{handle}
       </span>
-      {hasCaptionText ? <span className={captionTextClasses}>{`: ${spoilerSafeText}`}</span> : null}
+      {hasCaptionText ? <span className={captionTextClasses}>{`: ${filteredText}`}</span> : null}
     </>
   );
 
@@ -167,13 +167,13 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
   const cardClasses = [
     'x-highlight__card',
     mediaType === 'none' ? 'x-highlight__card--caption-only' : '',
-    spoilerHidden ? 'x-highlight__card--spoiler-hidden' : '',
+    scoreHidden ? 'x-highlight__card--score-hidden' : '',
   ]
     .filter(Boolean)
     .join(' ');
 
   const cardBody = (
-    <div className="x-highlight__card-body" aria-hidden={spoilerHidden}>
+    <div className="x-highlight__card-body" aria-hidden={scoreHidden}>
       {mediaType !== 'none' ? (
         <div ref={mediaRef} className="x-highlight__media">
           {showSkeleton ? <div className="x-highlight__media-skeleton" aria-hidden="true" /> : null}
@@ -216,7 +216,7 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
             <img
               className="x-highlight__image"
               src={post.imageUrl}
-              alt={hasCaptionText ? spoilerSafeText : `X post from ${handle}`}
+              alt={hasCaptionText ? filteredText : `X post from ${handle}`}
               loading="lazy"
               decoding="async"
               onLoad={() => setMediaLoaded(true)}
@@ -237,18 +237,18 @@ export const XHighlight = ({ post }: { post: TimelinePost }) => {
       </div>
       <div className={cardClasses}>
         {cardBody}
-        {spoilerHidden ? (
-          <div className="x-highlight__spoiler-overlay">
-            <span className="x-highlight__spoiler-pill">Score hidden</span>
+        {scoreHidden ? (
+          <div className="x-highlight__score-overlay">
+            <span className="x-highlight__score-pill">Score hidden</span>
             <button
               type="button"
-              className="x-highlight__spoiler-button"
-              onClick={() => setIsSpoilerRevealed(true)}
+              className="x-highlight__score-button"
+              onClick={() => setIsScoreRevealed(true)}
             >
               Reveal score
             </button>
             <span className="sr-only">
-              Spoiler hidden. Activate the reveal button to show the score.
+              Score hidden. Activate the reveal button to show the score.
             </span>
           </div>
         ) : null}

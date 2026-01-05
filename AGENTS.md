@@ -4,7 +4,7 @@
 
 ## Quick Context
 
-**What is this?** Web frontend for Scroll Down Sports—spoiler-free sports recaps.
+**What is this?** Web frontend for Scroll Down Sports—a game catch-up experience.
 
 **Tech Stack:** React, TypeScript, Vite, Tailwind CSS
 
@@ -16,7 +16,7 @@
 
 ## Core Product Principles
 
-1. **Spoiler-safe by default** — Users arrive after games are played
+1. **Context before outcome** — Users scroll through the game in sequence
 2. **Progressive disclosure** — Show context before scores
 3. **User control** — They decide when to reveal results
 4. **MVP first** — Ship value, iterate when needed
@@ -41,7 +41,7 @@ See `.cursorrules` for complete standards. Key points:
 - Edit files in `src/generated/` (auto-generated)
 - Use `any` types
 - Use `console.log` in committed code
-- Break spoiler-safe UI defaults
+- Break the paced reveal flow (context first, outcome last)
 
 ## API Integration
 
@@ -62,5 +62,3 @@ npm run dev
 ```bash
 npm test
 ```
-
-

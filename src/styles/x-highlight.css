@@ -31,7 +31,7 @@
   transition: filter 200ms ease, opacity 200ms ease;
 }
 
-.x-highlight__card--spoiler-hidden .x-highlight__card-body {
+.x-highlight__card--score-hidden .x-highlight__card-body {
   filter: blur(12px);
   opacity: 0.6;
   pointer-events: none;
@@ -169,7 +169,7 @@
   color: var(--color-accent-strong);
 }
 
-.x-highlight__spoiler-overlay {
+.x-highlight__score-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -181,10 +181,10 @@
   backdrop-filter: blur(2px);
   text-align: center;
   padding: var(--space-4);
-  animation: spoilerFadeIn 200ms ease;
+  animation: scoreFadeIn 200ms ease;
 }
 
-.x-highlight__spoiler-pill {
+.x-highlight__score-pill {
   font-size: var(--font-meta);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -195,7 +195,7 @@
   border-radius: var(--radius-pill);
 }
 
-.x-highlight__spoiler-button {
+.x-highlight__score-button {
   border: none;
   background: var(--color-accent);
   color: white;
@@ -210,7 +210,7 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
 }
 
-.x-highlight__spoiler-button:hover {
+.x-highlight__score-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
 }
@@ -269,7 +269,7 @@
   }
 }
 
-@keyframes spoilerFadeIn {
+@keyframes scoreFadeIn {
   from {
     opacity: 0;
   }

@@ -18,7 +18,7 @@ fetches and should remain aligned to the canonical schema.
 | Field                           | Meaning                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------- |
 | `post_url`                      | Link to the original X post (used for outbound link and handle parsing).  |
-| `tweet_text`                    | Text content of the post (spoiler-filtered in UI).                        |
+| `tweet_text`                    | Text content of the post (score-like patterns filtered in UI).            |
 | `image_url`                     | Image URL (used for image posts and as video poster).                     |
 | `video_url`                     | Video URL (used for inline playback).                                     |
 | `media_type`                    | Media indicator from backend (`video`, `image`, `none`, or other).        |
@@ -35,7 +35,7 @@ fetches and should remain aligned to the canonical schema.
    - Otherwise treat as `none`.
 
 2. **Missing media URLs:**
-   - Video/image failures fall back to a “media unavailable” message with a link to X.
+   - Video/image failures fall back to a "media unavailable" message with a link to X.
 
 3. **Post-game grouping (heuristic):**
    - If `game_end_time` or `final_whistle_time` is present, posts after that timestamp are post-game.

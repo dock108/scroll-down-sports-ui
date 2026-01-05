@@ -25,7 +25,7 @@ export interface TimelineEntry {
 }
 
 /**
- * Spoiler-safe game header info (no score)
+ * Game header info (score revealed at end)
  */
 export interface CatchupGameHeader {
   id: string;
@@ -36,7 +36,7 @@ export interface CatchupGameHeader {
 }
 
 /**
- * Final details revealed at the end (contains spoilers)
+ * Final details revealed at the end (score + attendance)
  */
 export interface CatchupFinalDetails {
   homeScore?: number;
@@ -76,7 +76,7 @@ type ApiPbpEvent = PlayEntry;
 type ApiPbpEventWithMoment = ApiPbpEvent & {
   moment_id?: string | number;
 };
-type ApiSocialPostWithSpoiler = ApiSocialPost & {
+type ApiSocialPostWithScore = ApiSocialPost & {
   contains_score?: boolean | null;
 };
 
@@ -146,7 +146,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
         return hasText || hasMedia;
       })
       .map((p) => {
-        const postWithSpoiler = p as ApiSocialPostWithSpoiler;
+        const postWithScore = p as ApiSocialPostWithScore;
         const mediaType = normalizeMediaType(
           p.media_type ?? null,
           p.video_url ?? null,
@@ -167,7 +167,7 @@ export class CatchupApiAdapter implements CatchupAdapter {
           imageUrl: p.image_url || '',
           sourceHandle: p.source_handle || '',
           tweetText: p.tweet_text || '',
-          containsScore: postWithSpoiler.contains_score ?? false,
+          containsScore: postWithScore.contains_score ?? false,
         };
       });
 

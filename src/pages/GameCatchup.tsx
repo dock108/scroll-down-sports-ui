@@ -128,7 +128,7 @@ export const GameCatchup = () => {
     }
   }, [gameId, isLoading]);
 
-  // Auto-reveal stats only after the timeline is finished to avoid spoilers
+  // Auto-reveal stats only after the timeline is finished to preserve pacing
   useEffect(() => {
     if (statsRevealed || !statsRevealTriggerRef.current) return;
 
@@ -339,7 +339,7 @@ export const GameCatchup = () => {
         </div>
       )}
 
-      {/* 1. HEADER - Game Details (spoiler-safe) */}
+      {/* 1. HEADER - Game Details (score hidden until reveal) */}
       <GameHeader
         awayTeam={game.awayTeam || 'Away'}
         homeTeam={game.homeTeam || 'Home'}
@@ -456,7 +456,7 @@ export const GameCatchup = () => {
       {/* Timeline end marker */}
       <TimelineDivider />
 
-      {/* This invisible marker triggers the spoiler-safe reveal once reached */}
+      {/* This invisible marker triggers the paced reveal once reached */}
       <div ref={statsRevealTriggerRef} aria-hidden="true" />
 
       {/* FINAL STATS SECTION - Player Stats + Team Stats + Final Score */}

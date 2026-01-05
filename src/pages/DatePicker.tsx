@@ -55,7 +55,7 @@ export const DatePicker = () => {
         <div className="space-y-4">
           <p className="text-xs uppercase tracking-[0.4em] text-gray-500">Scroll Down Sports</p>
           <h1 className="text-3xl font-semibold text-gray-900 sm:text-4xl">
-            Experience finished games spoiler-free
+            Catch up on games you missed
           </h1>
           <p className="max-w-2xl text-base text-gray-600 sm:text-lg">
             Pick a date range to browse completed matchups with no scores shown. Read the game story
